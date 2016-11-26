@@ -1,0 +1,19 @@
+%%
+
+a*b(ba*b)*a(a?b?)*              printf("DFA1 accepted: %s\n", yytext);
+ab+a?                           printf("DFA2 accepted: %s\n", yytext);
+a(b?a)*c(db)*(daa(b?a)*c(db)*)* printf("DFA3 accepted: %s\n", yytext);
+. ;
+
+%%
+
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+    return -1;
+  }
+  yyin = fopen(argv[1], "r");
+  yylex();
+  fclose(yyin);
+  return 0;
+}

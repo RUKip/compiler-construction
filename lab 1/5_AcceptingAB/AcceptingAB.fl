@@ -1,0 +1,59 @@
+%{
+void other();
+void saveChar(char c);
+int aCount;
+int bCount;
+
+%}
+
+%%
+
+a   {aCount++; saveChar('a');};
+b   {bCount++; saveChar('b');};
+\n  other();
+
+%%
+
+int aCount;
+int bCount;
+int i;
+char* inputSring;
+
+void saveChar(char c) {
+    if (i == strlen(inputSring)) {
+        char* temp = malloc(strlen(inputSring)*2*sizeof(char));
+        strcpy(temp, inputSring);
+        free(inputSring);
+        inputSring = temp;
+    }
+    inputSring[i] = c;
+    i++;
+}
+
+void other() {
+    if (aCount == 2 && bCount > 2) {
+        printf("accepted: %s\n", inputSring);
+    } else {
+        printf("rejected: %s\n", inputSring);
+    }
+    i = 0;
+    inputSring = malloc(5*sizeof(char));
+    aCount = 0;
+    bCount = 0;
+}
+
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+    return -1;
+  }
+  aCount = 0;
+  bCount = 0;
+  i = 0;
+  inputSring = malloc(5*sizeof(char));
+  yyin = fopen(argv[1], "r");
+  yylex();
+  fclose(yyin);
+  free(inputSring);
+  return 0;
+}

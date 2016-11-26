@@ -1,0 +1,31 @@
+MorseLetters = [.-, -..., -.-., -.., ., ..-., --., ...., .., .---, -.-, .-.., --, -., ---, .--., --.-, .-., ..., -, ..-, ...-, .--, -..-, -.--, --..];
+MorseDigits = [-----, .----, ..---, ...--, ....-, ....., -...., --..., ---.., ----.];
+Digit [0-9]
+LowerCase [a-z]
+UpperCase [A-Z]
+
+%%
+
+{Digit} printf("%s", MorseDigits[atoi(yytext) - 48]);
+{LowerCase} printf("%s", MorseLetters[atoi(yytext) - 97]);
+{UpperCase} printf("%s", MorseLetters[atoi(yytext) - 65]);
+,	printf("--..--");
+:	printf("---...");
+"?"	printf("..--..");
+"/"	printf("-..-.");
+"\""	printf(".-..-.");
+"="	printf("-...-");
+.	printf("%s",yytext);
+
+%%
+
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+    return -1;
+  }
+  yyin = fopen(argv[1], "r");
+  yylex();
+  fclose(yyin);
+  return 0;
+}

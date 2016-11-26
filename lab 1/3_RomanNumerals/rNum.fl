@@ -1,0 +1,52 @@
+%{
+void convert(char c, int numeral);
+void other();
+%}
+
+%%
+
+M   convert(yytext[0], 1000);
+D   convert(yytext[0], 500);
+C   convert(yytext[0], 100);
+L   convert(yytext[0], 50);
+X   convert(yytext[0], 10);
+V   convert(yytext[0], 5);
+I   convert(yytext[0], 1);
+.   other();
+\n other();
+
+%%
+
+int total;
+int last;
+
+void convert(char c, int numeral) {
+    printf("%c", c);
+    if (last == 0 || numeral <= last) {
+        total += last;
+        last = numeral;
+    } else {
+        total += (numeral - last);
+        last = 0;
+    }
+}
+
+void other() {
+    total += last;
+    last = 0;
+    printf("=%d\n", total);
+    total = 0;
+}
+
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+    return -1;
+  }
+  total = 0;
+  last = 0;
+  yyin = fopen(argv[1], "r");
+  yylex();
+  fclose(yyin);
+  return 0;
+}
