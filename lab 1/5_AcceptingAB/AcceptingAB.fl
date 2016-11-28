@@ -11,6 +11,7 @@ int bCount;
 a   {aCount++; saveChar('a');};
 b   {bCount++; saveChar('b');};
 \n  other();
+. ;
 
 %%
 
@@ -43,17 +44,11 @@ void other() {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-    return -1;
-  }
   aCount = 0;
   bCount = 0;
   i = 0;
   inputSring = malloc(5*sizeof(char));
-  yyin = fopen(argv[1], "r");
   yylex();
-  fclose(yyin);
   free(inputSring);
   return 0;
 }
