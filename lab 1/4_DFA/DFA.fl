@@ -1,20 +1,10 @@
-%{
-int newline;
-%}
 
 %%
 
-a*b(ba*b)*a(a?b?)*              {if(newline) {printf("\n");} newline = 1; printf("DFA1 accepted: %s", yytext);};
-ab+a?                           {if(newline) {printf("\n");} newline = 1; printf("DFA2 accepted: %s", yytext);};
-a(b?a)*c(db)*(daa(b?a)*c(db)*)* {if(newline) {printf("\n");} newline = 1; printf("DFA3 accepted: %s", yytext);};
-\n                              {newline = 0; printf("\n");};
+a*b(ba*b)*a(a?b?)*              printf("DFA1 accepted: %s\n", yytext);
+ab+a?                           printf("DFA2 accepted: %s\n", yytext);
+a(b?a)*c(db)*(daa(b?a)*c(db)*)* printf("DFA3 accepted: %s\n", yytext);
+\n ;
 . ;
 
 %%
-int newline;
-
-int main(int argc, char *argv[]) {
-  newline = 0;
-  yylex();
-  return 0;
-}

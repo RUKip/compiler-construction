@@ -8,10 +8,10 @@ int bCount;
 
 %%
 
-a   {aCount++; saveChar('a');};
-b   {bCount++; saveChar('b');};
+a|A   {aCount++; saveChar('a');};
+b|B   {bCount++; saveChar('b');};
 \n  other();
-. ;
+. saveChar(yytext[0]);
 
 %%
 
