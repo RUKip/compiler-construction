@@ -201,21 +201,20 @@ void saveDFA(char *filename, dfa d) {
 
 
 void tempIntset(nfa automaton, State s, intSet* closure){
-  intSet temp = automaton.transition[s][EPSILON];
+  intSet temp = copyIntSet(automaton.transition[s][EPSILON]);
   int n;
   while(!isEmptyIntSet(temp)){
     n = chooseFromIntSet(temp);
     if(!isMemberIntSet(n, *closure)){
       insertIntSet(n, closure);
       tempIntset(automaton, n, closure);
-    }
+    } 
     deleteIntSet(n, &temp);
   }
 }
 
 /* returns the EPSILON closure for a given state */
 intSet epsilonClosureState(nfa automaton, State s) {
-  /* implement the body of this function yourself */
   intSet closure = makeEmptyIntSet();
   insertIntSet(s, &closure);
   tempIntset(automaton, s, &closure);
