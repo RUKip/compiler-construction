@@ -199,15 +199,38 @@ void saveDFA(char *filename, dfa d) {
 
 /***********************************************************/
 
+intSet move(nfa automaton, State s, int c) {
+	intSet temp = copyIntSet(automaton.transition[s][c]);
+	intSet out = makeEmptyIntSet();
+	int n;
+	while(!isEmptyIntSet(temp)){
+		n = chooseFromIntSet(temp);
+		insertIntSet(n, &out);
+		deleteIntSet(n, &temp);
+	}
+	return out;
+}
 
-void tempIntset(nfa automaton, State s, intSet* closure){
-  intSet temp = copyIntSet(automaton.transition[s][EPSILON]);
+intSet moveForSet(nfa automaton, intSet s, int c) {
+	intSet out = makeEmptyIntSet();
+  intSet copy = copyIntSet(s);
+	int n;
+	while(!isEmptyIntSet(copy)){
+		n = chooseFromIntSet(copy);
+		unionIntSet(&out, move(automaton, n, c));
+		deleteIntSet(n, &copy);
+	}
+	return out;
+}
+
+void tempIntset(nfa automaton, State s, intSet* closure, int c){
+  intSet temp = copyIntSet(automaton.transition[s][c]);
   int n;
   while(!isEmptyIntSet(temp)){
     n = chooseFromIntSet(temp);
     if(!isMemberIntSet(n, *closure)){
       insertIntSet(n, closure);
-      tempIntset(automaton, n, closure);
+      tempIntset(automaton, n, closure, c);
     } 
     deleteIntSet(n, &temp);
   }
@@ -217,15 +240,62 @@ void tempIntset(nfa automaton, State s, intSet* closure){
 intSet epsilonClosureState(nfa automaton, State s) {
   intSet closure = makeEmptyIntSet();
   insertIntSet(s, &closure);
-  tempIntset(automaton, s, &closure);
+  tempIntset(automaton, s, &closure, EPSILON);
   return closure;
 }
 
 /* returns the EPSILON closure for a set of states */
 intSet epsilonClosureStateSet(nfa automaton, intSet s) {
-  /* implement the body of this function yourself */
   intSet closure = makeEmptyIntSet();
+  int n;
+  while(!isEmptyIntSet(s)){
+    n = chooseFromIntSet(s);
+    if(!isMemberIntSet(n, closure)){
+      insertIntSet(n, &closure);
+      tempIntset(automaton, n, &closure, EPSILON);
+    } 
+    deleteIntSet(n, &s);
+  }
   return closure;
+}
+
+int isFinalState (intSet s, nfa n) {
+  int i;
+  intSet copy = copyIntSet(s);
+  while(!isEmptyIntSet(copy)){
+    i = chooseFromIntSet(copy);
+    if(isMemberIntSet(i, n.final)){
+      return 1;
+    } 
+    deleteIntSet(i, &copy);
+  }
+  return 0;
+}
+
+void addToTable(int pos, int c, intSet s, nfa n, dfa d, intSet* sTable) {
+  if (isEmptyIntSet(s)) return;
+  int i; 
+  for(i = 0; i < d.nstates; i++) {
+    if (isEqualIntSet(s, sTable[i])) {
+      d.transition[pos][c] = i;
+      printf("found equal set @ pos %d\n", i);
+      return;
+    }
+  } 
+  printlnIntSet(s);
+  if(d.nstates == sizeof(sTable)/sizeof(intSet)) {
+    safeRealloc(sTable, 2*d.nstates);
+    safeRealloc(&d.transition, 2*d.nstates);
+  }
+  
+  d.transition[d.nstates] = safeMalloc(129*sizeof(int));
+  if (isFinalState(sTable[d.nstates], n)) {
+    insertIntSet(d.nstates, &d.final);
+  }
+  sTable[d.nstates] = s;
+  d.transition[pos][c] = d.nstates;
+  printf("create new set @ pos %d\n", d.nstates);
+  d.nstates++;
 }
 
 /* DFA construction */
@@ -236,10 +306,28 @@ dfa nfa2dfa(nfa n) {
   d.start = 0;
   d.final = makeEmptyIntSet();
   d.transition = NULL;
+  int c;
+  intSet* synonymTable = safeMalloc(n.nstates*sizeof(intSet));
+  d.transition = safeMalloc(n.nstates*sizeof(int*));
+
+  synonymTable[0] = epsilonClosureState(n, n.start);
+  d.transition[0] = safeMalloc(129*sizeof(int));
+  d.nstates++;
+  if (isFinalState(synonymTable[0], n)) {
+    insertIntSet(0, &d.final);
+  }
+  
+  int i = 0;
+  while(i < d.nstates) {
+	  for(c = 0; c < EPSILON; c++){
+		  addToTable(i, c, epsilonClosureStateSet(n, moveForSet(n, synonymTable[i], c)), n, d, synonymTable);
+		}
+    i++;
+	}
   return d;
 }
 
-/* minimal DFA construction using Brzozowskiâ€™s algorithm */
+/* minimal DFA construction using Brzozowski’s algorithm */
 dfa nfa2minimalDFA(nfa n) {
   /* implement the body of this function yourself */
   dfa d;
@@ -261,7 +349,7 @@ int main (int argc, char **argv) {
   n = readNFA(argv[1]);
    saveNFA("out.nfa", n);
 
-#if 1
+#if 0
   /* code for testing epsilonClosureState */
   for (s=0; s < n.nstates; s++) {
     intSet epsclosure = epsilonClosureState(n, s);
@@ -271,8 +359,24 @@ int main (int argc, char **argv) {
   }
 #endif
   
-  
 #if 0
+  /* code for testing epsilonClosureStateSet */
+  int t;
+  for (s=0; s < n.nstates; s++) {
+	for (t=s+1; t < n.nstates; t++) {
+		intSet in = makeEmptyIntSet();
+		insertIntSet(s, &in);
+		insertIntSet(t, &in);
+		intSet epsclosure = epsilonClosureStateSet(n, in);
+		printf("epsclosure(%u, %u)=", s, t);
+		printlnIntSet(epsclosure);
+		freeIntSet(in);
+		freeIntSet(epsclosure);
+	}
+  }
+#endif  
+  
+#if 1
   /* code for testing nfa2dfa */
   d = nfa2dfa(n);
   saveDFA("out.dfa", d);
