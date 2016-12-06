@@ -234,6 +234,7 @@ void tempIntset(nfa automaton, State s, intSet* closure, int c){
     } 
     deleteIntSet(n, &temp);
   }
+  freeIntSet(temp);
 }
 
 /* returns the EPSILON closure for a given state */
@@ -269,6 +270,7 @@ int isFinalState (intSet s, nfa n) {
     } 
     deleteIntSet(i, &copy);
   }
+  freeIntSet(copy);
   return 0;
 }
 
@@ -288,13 +290,14 @@ void addToTable(int pos, int c, intSet s, nfa n, dfa* d, intSet* sTable) {
   
   d->transition[d->nstates] = safeMalloc(129*sizeof(int));
   for (i = 0; i < 129; i++) {
-		d->transition[0][i] = -1;
+		d->transition[d->nstates][i] = NOTRANSITION;
 	}
-  if (isFinalState(sTable[d->nstates], n)) {
-    insertIntSet(d->nstates, &d->final);
-  }
+ 
   sTable[d->nstates] = s;
   d->transition[pos][c] = d->nstates;
+  if (isFinalState(sTable[d->nstates], n)) {
+    insertIntSet(d->nstates, &(d->final));
+  }
   d->nstates++;
 }
 
@@ -324,27 +327,30 @@ dfa nfa2dfa(nfa n) {
 	  for(c = 0; c < EPSILON; c++) {
 			addToTable(i, c, epsilonClosureStateSet(n, moveForSet(n, synonymTable[i], c)), n, &d, synonymTable);
 		}
-		printlnIntSet(synonymTable[i]);
     i++;
 	}
+	for (i = 0; i < d.nstates; i++) {
+		freeIntSet(synonymTable[i]);
+	}
+	free(synonymTable);
   return d;
+}
+
+nfa reverse(nfa n) {
+	nfa new;
+	n
 }
 
 /* minimal DFA construction using Brzozowski’s algorithm */
 dfa nfa2minimalDFA(nfa n) {
   /* implement the body of this function yourself */
-  dfa d;
-  d.nstates = 0;
-  d.start = 0;
-  d.final = makeEmptyIntSet();
-  d.transition = NULL;
+  dfa d = nfa2dfa(n);
   return d;
 }
 
 int main (int argc, char **argv) {
   nfa n;
   dfa d;
-  State s;
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <nfa file>\n", argv[0]);
     exit(EXIT_FAILURE);
@@ -353,6 +359,7 @@ int main (int argc, char **argv) {
    saveNFA("out.nfa", n);
 
 #if 0
+  State s;
   /* code for testing epsilonClosureState */
   for (s=0; s < n.nstates; s++) {
     intSet epsclosure = epsilonClosureState(n, s);
@@ -363,6 +370,7 @@ int main (int argc, char **argv) {
 #endif
   
 #if 0
+  State s;
   /* code for testing epsilonClosureStateSet */
   int t;
   for (s=0; s < n.nstates; s++) {
