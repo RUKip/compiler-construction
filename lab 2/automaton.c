@@ -186,11 +186,11 @@ void saveDFA(char *filename, dfa d) {
   for (state = 0; state < d.nstates; state++) {
     for (c=0; c < 128; c++) {
       if (d.transition[state][c] != NOTRANSITION) {
-	if (c > ' ') {
-	  fprintf(f, "%u '%c' %u\n", state, c, d.transition[state][c]);
-	} else {
-	  fprintf(f, "%u #%d %u\n", state, c, d.transition[state][c]);
-	}
+				if (c > ' ') {
+					fprintf(f, "%u '%c' %u\n", state, c, d.transition[state][c]);
+				} else {
+					fprintf(f, "%u #%d %u\n", state, c, d.transition[state][c]);
+				}
       }
     }
   }
@@ -272,30 +272,30 @@ int isFinalState (intSet s, nfa n) {
   return 0;
 }
 
-void addToTable(int pos, int c, intSet s, nfa n, dfa d, intSet* sTable) {
+void addToTable(int pos, int c, intSet s, nfa n, dfa* d, intSet* sTable) {
   if (isEmptyIntSet(s)) return;
   int i; 
-  for(i = 0; i < d.nstates; i++) {
+  for(i = 0; i < d->nstates; i++) {
     if (isEqualIntSet(s, sTable[i])) {
-      d.transition[pos][c] = i;
-      printf("found equal set @ pos %d\n", i);
+      d->transition[pos][c] = i;
       return;
     }
   } 
-  printlnIntSet(s);
-  if(d.nstates == sizeof(sTable)/sizeof(intSet)) {
-    safeRealloc(sTable, 2*d.nstates);
-    safeRealloc(&d.transition, 2*d.nstates);
+  if(d->nstates == sizeof(sTable)/sizeof(intSet)) {
+    safeRealloc(sTable, 2*d->nstates);
+    safeRealloc(d->transition, 2*d->nstates);
   }
   
-  d.transition[d.nstates] = safeMalloc(129*sizeof(int));
-  if (isFinalState(sTable[d.nstates], n)) {
-    insertIntSet(d.nstates, &d.final);
+  d->transition[d->nstates] = safeMalloc(129*sizeof(int));
+  for (i = 0; i < 129; i++) {
+		d->transition[0][i] = -1;
+	}
+  if (isFinalState(sTable[d->nstates], n)) {
+    insertIntSet(d->nstates, &d->final);
   }
-  sTable[d.nstates] = s;
-  d.transition[pos][c] = d.nstates;
-  printf("create new set @ pos %d\n", d.nstates);
-  d.nstates++;
+  sTable[d->nstates] = s;
+  d->transition[pos][c] = d->nstates;
+  d->nstates++;
 }
 
 /* DFA construction */
@@ -309,9 +309,11 @@ dfa nfa2dfa(nfa n) {
   int c;
   intSet* synonymTable = safeMalloc(n.nstates*sizeof(intSet));
   d.transition = safeMalloc(n.nstates*sizeof(int*));
-
   synonymTable[0] = epsilonClosureState(n, n.start);
   d.transition[0] = safeMalloc(129*sizeof(int));
+  for (c = 0; c < 129; c++) {
+		d.transition[0][c] = NOTRANSITION;
+	}
   d.nstates++;
   if (isFinalState(synonymTable[0], n)) {
     insertIntSet(0, &d.final);
@@ -319,9 +321,10 @@ dfa nfa2dfa(nfa n) {
   
   int i = 0;
   while(i < d.nstates) {
-	  for(c = 0; c < EPSILON; c++){
-		  addToTable(i, c, epsilonClosureStateSet(n, moveForSet(n, synonymTable[i], c)), n, d, synonymTable);
+	  for(c = 0; c < EPSILON; c++) {
+			addToTable(i, c, epsilonClosureStateSet(n, moveForSet(n, synonymTable[i], c)), n, &d, synonymTable);
 		}
+		printlnIntSet(synonymTable[i]);
     i++;
 	}
   return d;
