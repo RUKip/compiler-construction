@@ -336,15 +336,67 @@ dfa nfa2dfa(nfa n) {
   return d;
 }
 
-nfa reverse(nfa n) {
-	nfa new;
-	n
+nfa reverse(nfa old) {
+	nfa new = makeNFA(old.nstates+1);
+	int state, c, i;
+	for (state = 0; state < old.nstates; state++) {
+		for (c = 0; c <= EPSILON; c++) {
+			while (!isEmptyIntSet(old.transition[state][c])) {
+				i = chooseFromIntSet(old.transition[state][c]);
+				insertIntSet(state, &new.transition[i][c]);
+				deleteIntSet(i, &(old.transition[state][c]));
+			}
+		}
+	}
+	
+	while (!isEmptyIntSet(old.final)) {
+		i = chooseFromIntSet(old.final);
+		insertIntSet(i, &new.transition[old.nstates][EPSILON]);
+		deleteIntSet(i, &(old.final));
+	}
+	new.start = old.nstates;
+	
+	insertIntSet(old.start, &new.final);
+	
+	return new;
 }
 
-/* minimal DFA construction using Brzozowski’s algorithm */
+dfa reachable(dfa old) {
+	intSet reachableStates = makeEmptyIntSet();
+	insertIntSet(old.start, &reachableStates);
+	int* reachable = safeMalloc(old.nstates*sizeof(int))
+	int i, c, state, newState;
+	
+	for(i=0; i<nstates; i++){
+		reachable[i] = 0;
+	}
+	
+	while(!isEmptyIntSet(reachableStates)){
+		state = chooseFromIntSet(reachableStates);
+		reachable[state] = 1;
+		for(c = 0; c < EPSILON; c++){
+			newState = old.transition[state][c]
+			if(reachable[state] == 0){
+				insertIntSet(newState, &reachableStates)
+			}
+		}
+		deleteIntSet(state, &reachableStates);
+	}
+	
+	for(i=0;){
+		if(!reachable[i]){
+			for(){
+				free(old.transition[i][c])
+			}
+		}
+	}
+	
+	return 
+}
+
+/* minimal DFA construction using Brzozowskiâ€™s algorithm */
 dfa nfa2minimalDFA(nfa n) {
   /* implement the body of this function yourself */
-  dfa d = nfa2dfa(n);
   return d;
 }
 
@@ -357,6 +409,7 @@ int main (int argc, char **argv) {
   }
   n = readNFA(argv[1]);
    saveNFA("out.nfa", n);
+   saveNFA("reverse.nfa", reverse(n));
 
 #if 0
   State s;
@@ -387,7 +440,7 @@ int main (int argc, char **argv) {
   }
 #endif  
   
-#if 1
+#if 0
   /* code for testing nfa2dfa */
   d = nfa2dfa(n);
   saveDFA("out.dfa", d);
