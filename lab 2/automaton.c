@@ -361,13 +361,58 @@ nfa reverse(nfa old) {
 	return new;
 }
 
+void reachBody(int* reachableStates, dfa d, State s) {
+  int c;
+  for (c = 0; c <= EPSILON; c++) {
+    int temp = d.transition[s][c];
+    if (temp != NOTRANSITION && reachableStates[temp] == 0) {
+      reachableStates[temp] = 1;
+      reachBody(reachableStates, d, temp);
+    }
+  }
+}
+
+dfa reachable2(dfa old) {
+  int* reachableStates = safeMalloc(old.nstates* sizeof(int));
+  State s = old.start;
+  reachableStates[s] = 1;
+  reachBody(reachableStates, old, s);
+  
+  dfa new;
+  new.nstates = 0;
+  new.start = old.start;
+  new.final = makeEmptyIntSet();
+  new.transition = NULL;
+  
+  for (int i = 0; i < old.nstates; i++) {
+    new.nstates += reachableStates[i];
+  }
+  
+  new.transition = safeMalloc(new.nstates*sizeof(int*));
+  int n = 0;
+  
+  for (int i = 0; i < old.nstates; i++) {
+    if (reachableStates[i]) {
+      new.transition[n] = old.transition[i];
+      if (isMemberIntSet(i, old.final)) {
+        insertIntSet(i, &new.final);
+      }
+      n++;
+    } else {
+      free(old.transition[i]);
+    }
+  }
+  
+  return  new;
+}
+
 dfa reachable(dfa old) {
 	intSet reachableStates = makeEmptyIntSet();
 	insertIntSet(old.start, &reachableStates);
-	int* reachable = safeMalloc(old.nstates*sizeof(int))
+	int* reachable = safeMalloc(old.nstates*sizeof(int));
 	int i, c, state, newState;
 	
-	for(i=0; i<nstates; i++){
+	for(i=0; i< old.nstates; i++){
 		reachable[i] = 0;
 	}
 	
@@ -375,28 +420,29 @@ dfa reachable(dfa old) {
 		state = chooseFromIntSet(reachableStates);
 		reachable[state] = 1;
 		for(c = 0; c < EPSILON; c++){
-			newState = old.transition[state][c]
-			if(reachable[state] == 0){
-				insertIntSet(newState, &reachableStates)
+			newState = old.transition[state][c];
+			if(reachable[state] == 0) {
+				insertIntSet(newState, &reachableStates);
 			}
 		}
 		deleteIntSet(state, &reachableStates);
 	}
-	
+	/*
 	for(i=0;){
 		if(!reachable[i]){
 			for(){
-				free(old.transition[i][c])
+				free(old.transition[i][c]);
 			}
 		}
-	}
-	
-	return 
+	}*/
+	dfa t;
+	return t;
 }
 
 /* minimal DFA construction using Brzozowski’s algorithm */
 dfa nfa2minimalDFA(nfa n) {
   /* implement the body of this function yourself */
+  dfa d;
   return d;
 }
 
@@ -409,7 +455,6 @@ int main (int argc, char **argv) {
   }
   n = readNFA(argv[1]);
    saveNFA("out.nfa", n);
-   saveNFA("reverse.nfa", reverse(n));
 
 #if 0
   State s;
@@ -440,11 +485,12 @@ int main (int argc, char **argv) {
   }
 #endif  
   
-#if 0
+#if 1
   /* code for testing nfa2dfa */
   d = nfa2dfa(n);
   saveDFA("out.dfa", d);
-  freeDFA(d);
+  saveDFA("reachable.dfa", reachable2(d));
+  //freeDFA(d);
 #endif
 
 #if 0
