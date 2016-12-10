@@ -331,8 +331,9 @@ dfa nfa2dfa(nfa n) {
 	}
 	for (i = 0; i < d.nstates; i++) {
 		freeIntSet(synonymTable[i]);
-	}
-	free(synonymTable);
+	} 
+	freeNFA(n);
+	
   return d;
 }
 
@@ -358,92 +359,38 @@ nfa reverse(nfa old) {
 	
 	insertIntSet(old.start, &new.final);
 	
+	freeNFA(old);
+	
 	return new;
 }
 
-void reachBody(int* reachableStates, dfa d, State s) {
-  int c;
-  for (c = 0; c <= EPSILON; c++) {
-    int temp = d.transition[s][c];
-    if (temp != NOTRANSITION && reachableStates[temp] == 0) {
-      reachableStates[temp] = 1;
-      reachBody(reachableStates, d, temp);
-    }
-  }
-}
-
-dfa reachable2(dfa old) {
-  int* reachableStates = safeMalloc(old.nstates* sizeof(int));
-  State s = old.start;
-  reachableStates[s] = 1;
-  reachBody(reachableStates, old, s);
-  
-  dfa new;
-  new.nstates = 0;
-  new.start = old.start;
-  new.final = makeEmptyIntSet();
-  new.transition = NULL;
-  
-  for (int i = 0; i < old.nstates; i++) {
-    new.nstates += reachableStates[i];
-  }
-  
-  new.transition = safeMalloc(new.nstates*sizeof(int*));
-  int n = 0;
-  
-  for (int i = 0; i < old.nstates; i++) {
-    if (reachableStates[i]) {
-      new.transition[n] = old.transition[i];
-      if (isMemberIntSet(i, old.final)) {
-        insertIntSet(i, &new.final);
-      }
-      n++;
-    } else {
-      free(old.transition[i]);
-    }
-  }
-  
-  return  new;
-}
-
-dfa reachable(dfa old) {
-	intSet reachableStates = makeEmptyIntSet();
-	insertIntSet(old.start, &reachableStates);
-	int* reachable = safeMalloc(old.nstates*sizeof(int));
-	int i, c, state, newState;
-	
-	for(i=0; i< old.nstates; i++){
-		reachable[i] = 0;
-	}
-	
-	while(!isEmptyIntSet(reachableStates)){
-		state = chooseFromIntSet(reachableStates);
-		reachable[state] = 1;
-		for(c = 0; c < EPSILON; c++){
-			newState = old.transition[state][c];
-			if(reachable[state] == 0) {
-				insertIntSet(newState, &reachableStates);
+nfa dfa2nfa (dfa d) {
+	printf("d.nstates %d\n", d.nstates);
+	nfa new = makeNFA(d.nstates);
+	printf("gaat nog goed\n");
+	int state, c, i;
+	for (state = 0; state < d.nstates; state++) {
+		for (c = 0; c <= EPSILON; c++) {
+			if (d.transition[state][c] != NOTRANSITION) {
+				insertIntSet(d.transition[state][c], &new.transition[state][c]);
 			}
 		}
-		deleteIntSet(state, &reachableStates);
 	}
-	/*
-	for(i=0;){
-		if(!reachable[i]){
-			for(){
-				free(old.transition[i][c]);
-			}
-		}
-	}*/
-	dfa t;
-	return t;
+	while (!isEmptyIntSet(d.final)) {
+		i = chooseFromIntSet(d.final);
+		insertIntSet(i, &new.final);
+		deleteIntSet(i, &(d.final));
+	}
+	
+	//freeDFA(d);
+	
+	return new;
 }
 
-/* minimal DFA construction using Brzozowskiâ€™s algorithm */
-dfa nfa2minimalDFA(nfa n) {
-  /* implement the body of this function yourself */
-  dfa d;
-  return d;
+/* minimal DFA construction using Brzozowski’s algorithm */
+nfa nfa2minimalDFA(nfa n) {
+  return dfa2nfa(nfa2dfa(reverse(n)));
+  //nfa2dfa(reverse(
 }
 
 int main (int argc, char **argv) {
@@ -472,34 +419,35 @@ int main (int argc, char **argv) {
   /* code for testing epsilonClosureStateSet */
   int t;
   for (s=0; s < n.nstates; s++) {
-	for (t=s+1; t < n.nstates; t++) {
-		intSet in = makeEmptyIntSet();
-		insertIntSet(s, &in);
-		insertIntSet(t, &in);
-		intSet epsclosure = epsilonClosureStateSet(n, in);
-		printf("epsclosure(%u, %u)=", s, t);
-		printlnIntSet(epsclosure);
-		freeIntSet(in);
-		freeIntSet(epsclosure);
-	}
+		for (t=s+1; t < n.nstates; t++) {
+			intSet in = makeEmptyIntSet();
+			insertIntSet(s, &in);
+			insertIntSet(t, &in);
+			intSet epsclosure = epsilonClosureStateSet(n, in);
+			printf("epsclosure(%u, %u)=", s, t);
+			printlnIntSet(epsclosure);
+			freeIntSet(in);
+			freeIntSet(epsclosure);
+		}
   }
 #endif  
   
-#if 1
+#if 0
   /* code for testing nfa2dfa */
   d = nfa2dfa(n);
   saveDFA("out.dfa", d);
   saveDFA("reachable.dfa", reachable2(d));
+#endif
+
+#if 1
+  /* code for testing nfa2minimalDFA */
+  //d = nfa2minimalDFA(n);
+  //saveDFA("temp.dfa", d);
+ nfa n2 = nfa2minimalDFA(n);
+  saveNFA("temp.nfa", n2);
+  //saveDFA("minimal.dfa", d);
   //freeDFA(d);
 #endif
 
-#if 0
-  /* code for testing nfa2minimalDFA */
-  d = nfa2minimalDFA(n);
-  saveDFA("minimal.dfa", d);
-  freeDFA(d);
-#endif
-
-  freeNFA(n);
   return EXIT_SUCCESS;
 }
