@@ -1,4 +1,4 @@
-CFLAGS=-O2 -Wall
+CFLAGS=-O0 -Wall
 
 all: intset.o automaton.o
 	gcc automaton.o intset.o
