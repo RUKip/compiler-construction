@@ -330,15 +330,16 @@ dfa nfa2dfa(nfa n) {
     i++;
 	}
 	for (i = 0; i < d.nstates; i++) {
-		freeIntSet(synonymTable[i]);
+		//freeIntSet(synonymTable[i]); --also here
 	} 
-	freeNFA(n);
+	//freeNFA(n); ---look here
 	
   return d;
 }
 
 nfa reverse(nfa old) {
 	nfa new = makeNFA(old.nstates+1);
+	printf("more print statements\n");
 	int state, c, i;
 	for (state = 0; state < old.nstates; state++) {
 		for (c = 0; c <= EPSILON; c++) {
@@ -349,18 +350,19 @@ nfa reverse(nfa old) {
 			}
 		}
 	}
-	
+	printf("more print statements\n");
 	while (!isEmptyIntSet(old.final)) {
 		i = chooseFromIntSet(old.final);
 		insertIntSet(i, &new.transition[old.nstates][EPSILON]);
 		deleteIntSet(i, &(old.final));
 	}
+
 	new.start = old.nstates;
 	
 	insertIntSet(old.start, &new.final);
-	
-	freeNFA(old);
-	
+	printf("more print statements\n");
+	//freeNFA(old);
+	printf("more print statements\n");
 	return new;
 }
 
@@ -376,12 +378,13 @@ nfa dfa2nfa (dfa d) {
 			}
 		}
 	}
+	printf("gaat nog goed 2\n");
 	while (!isEmptyIntSet(d.final)) {
 		i = chooseFromIntSet(d.final);
 		insertIntSet(i, &new.final);
 		deleteIntSet(i, &(d.final));
 	}
-	
+	printf("gaat nog goed 3\n");
 	//freeDFA(d);
 	
 	return new;
@@ -389,7 +392,12 @@ nfa dfa2nfa (dfa d) {
 
 /* minimal DFA construction using Brzozowski’s algorithm */
 nfa nfa2minimalDFA(nfa n) {
-  return dfa2nfa(nfa2dfa(reverse(n)));
+  printf("test0");
+  dfa d = nfa2dfa(reverse(n));
+  printf("test1\n");
+  nfa n2 = makeNFA(d.nstates);
+  //dfa2nfa(d);
+  return n2;
   //nfa2dfa(reverse(
 }
 
@@ -436,14 +444,13 @@ int main (int argc, char **argv) {
   /* code for testing nfa2dfa */
   d = nfa2dfa(n);
   saveDFA("out.dfa", d);
-  saveDFA("reachable.dfa", reachable2(d));
 #endif
 
 #if 1
   /* code for testing nfa2minimalDFA */
   //d = nfa2minimalDFA(n);
   //saveDFA("temp.dfa", d);
- nfa n2 = nfa2minimalDFA(n);
+  nfa n2 = nfa2minimalDFA(n);
   saveNFA("temp.nfa", n2);
   //saveDFA("minimal.dfa", d);
   //freeDFA(d);
