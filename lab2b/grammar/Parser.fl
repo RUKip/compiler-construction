@@ -1,11 +1,8 @@
 NUMBER	[0-9]+
 MODIFIER	[+,-,*,/,^]
-LBRACKET	(
-RBRACKET	)
+LBRACKET	"("
+RBRACKET	")"
 %%
-{MODIFIER}	return yytext;
-{NUMBER}	return yytext;
-LBRACKET	return yytext;
-RBRACKET	return yytext;
+[MODIFIER,LBRACKET,RBRACKET, NUMBER]	return yytext;
 [ \t\r\n]*	;
 %%
