@@ -1,4 +1,4 @@
 all: lex.yy.c
 	gcc lex.yy.c -lfl
-lex.yy.c: Grammar.fl
-	flex Grammar.fl
+lex.yy.c: Parser.fl
+	flex Parser.fl
