@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "parser.h"
 
+int value;
 int yylex(); 
 int nextToken;
 
@@ -12,19 +14,19 @@ void parseN2();
 void parseTtail();
 void parseTerm();
 
-int PLUS_TOKEN = 43;
-int MIN_TOKEN = 45;
-int MUL_TOKEN = 42;
-int DIV_TOKEN = 47;
-int N_TOKEN = 94;
-int L_BRACKET = 40;
-int R_BRACKET = 41;
+int PLUS_TOKEN = 1;
+int MIN_TOKEN = 2;
+int MUL_TOKEN = 3;
+int DIV_TOKEN = 4;
+int N_TOKEN = 5;
+int L_BRACKET = 6;
+int R_BRACKET = 7;
+int NUMBER = 8;
 
 int match(int token) {
-  char* str[1];
-  str[0] = token;
-  printf("nextToken token is: %s\n", nextToken);
-  if (strcmp(str,nextToken) != 0) {
+  if(nextToken == NULL) exit(0); //TODO: close tree here, instead of exit
+  printf("nextToken token is: %d\n", nextToken);
+  if (nextToken != token) {
     return 0; /* no match */
   }
   printf("token matched\n");
@@ -47,7 +49,7 @@ void parseEtail(){
       parseEtail();
       return;
     }
-    while(match(MIN_TOKEN)){
+    while(match(MIN_TOKEN)){ //TODO: strange things happen to -
       printf("parsing T after -\n");
       parseTerm();
       parseEtail();
@@ -79,7 +81,7 @@ void parseTtail(){
 }
 
 void parseN(){
-    printf("parsing F\n");
+   printf("parsing F\n");
    parseF();
    printf("parsing N2\n");
    parseN2();
@@ -103,12 +105,14 @@ void parseF(){
       return;
     }
     
-    printf("%s\n", nextToken);
+    printf("%d\n", value);
     nextToken = yylex();
 }
 
 int main(int argc, char *argv[]) {
   nextToken = yylex();
-  parseExpr();
+  //TODO: make tree here
+  parseExpr(); //TODO: should still fill tree
+  //TODO: print tree here
   return 0;
 }
