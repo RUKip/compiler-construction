@@ -3,6 +3,9 @@ MODIFIER	[+,-,*,/,^]
 LBRACKET	"("
 RBRACKET	")"
 %%
-[MODIFIER,LBRACKET,RBRACKET, NUMBER]	return yytext;
+{MODIFIER}	return yytext;
+{LBRACKET}	return yytext;
+{RBRACKET}	return yytext;
+{NUMBER}	return yytext;
 [ \t\r\n]*	;
 %%
