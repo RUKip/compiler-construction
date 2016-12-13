@@ -1,18 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "parser.h"
 
 int value;
 int yylex(); 
 int nextToken;
 
-void parseEtail();
-void parseExpr();
-void parseF();
-void parseN();
-void parseN2();
-void parseTtail();
-void parseTerm();
+typedef struct ExpTreeNode *ExpTree;
+typedef int TokenType;
+typedef int Token;
+
+typedef struct ExpTreeNode {
+  TokenType tt;
+  Token t;
+  ExpTree left;
+  ExpTree right;
+} ExpTreeNode;
+
+ExpTree parseEtail();
+ExpTree parseExpr();
+ExpTree parseF();
+ExpTree parseN();
+ExpTree parseN2();
+ExpTree parseTtail();
+ExpTree parseTerm();
 
 int PLUS_TOKEN = 1;
 int MIN_TOKEN = 2;
@@ -23,96 +35,135 @@ int L_BRACKET = 6;
 int R_BRACKET = 7;
 int NUMBER = 8;
 
+
+
+/* creates a new node for an expression tree */
+ExpTree newExpTreeNode(TokenType tt, Token t, ExpTree tL, ExpTree tR) {
+  ExpTree new = malloc(sizeof(ExpTreeNode));
+  assert (new!=NULL);
+  new->tt = tt;
+  new->t = t;
+  new->left = tL;
+  new->right = tR;
+  return new;
+}
+
 int match(int token) {
-  if(nextToken == NULL) exit(0); //TODO: close tree here, instead of exit
-  printf("nextToken token is: %d\n", nextToken);
   if (nextToken != token) {
     return 0; /* no match */
   }
-  printf("token matched\n");
   nextToken = yylex();
   return 1; /* match */
 }
 
-void parseExpr(){
-  printf("parsing T\n");
-  parseTerm();
-  printf("parsing Etail\n");
-  parseEtail();
+ExpTree parseExpr(){
+  ExpTree l = parseTerm();
+  return parseEtail(l);
 }
 
 
-void parseEtail(){
+ExpTree parseEtail(ExpTree l){
     while(match(PLUS_TOKEN)){
-      printf("parsing T after +\n");
-      parseTerm();
-      parseEtail();
-      return;
+      ExpTree r = parseTerm();
+      ExpTree p = newExpTreeNode(2, PLUS_TOKEN, l, r);
+      return parseEtail(p);
     }
-    while(match(MIN_TOKEN)){ //TODO: strange things happen to -
-      printf("parsing T after -\n");
-      parseTerm();
-      parseEtail();
-      return;
+    while(match(MIN_TOKEN)){
+      ExpTree r = parseTerm();
+      ExpTree p = newExpTreeNode(2, MIN_TOKEN, l, r);
+      return parseEtail(p);
     }
-    printf("parsing empty after Etail\n");
-    return;
+    return l;
 }
 
-void parseTerm(){
-  printf("parsing N\n");
-  parseN();
-  printf("parsing Ttail\n");
-  parseTtail();
+ExpTree parseTerm(){
+  ExpTree n = parseN();
+  return parseTtail(n);
 }
 
-void parseTtail(){
+ExpTree parseTtail(ExpTree l){
   while(match(MUL_TOKEN)){
-      parseN();
-      parseTtail();
-      return;
+      ExpTree r = parseN();
+      ExpTree p = newExpTreeNode(2, MUL_TOKEN, l, r);
+      return parseTtail(p);
     }
     while(match(DIV_TOKEN)){
-      parseN();
-      parseTtail();
-      return;
+     ExpTree r = parseN();
+      ExpTree p = newExpTreeNode(2, DIV_TOKEN, l, r);
+      return parseTtail(p);
     }
-    return;
+    return l;
 }
 
-void parseN(){
-   printf("parsing F\n");
-   parseF();
-   printf("parsing N2\n");
-   parseN2();
+ExpTree parseN(){
+   ExpTree l = parseF();
+   ExpTree p = parseN2();
+   if (p != NULL) {
+     p->left = l;
+     return p;
+   } else {
+     return l;
+   }
 }
 
-void parseN2(){
+ExpTree parseN2(){
     while(match(N_TOKEN)){
-      printf("parsing N after ^\n");
-      parseN();
+      ExpTree n = parseN();
+      return newExpTreeNode(2, N_TOKEN, NULL, n);
     }
-    printf("parsing Empty\n");
+    return NULL;
 }
 
-void parseF(){
+ExpTree parseF(){
     while(match(L_BRACKET)){
-      parseExpr();
+      ExpTree e;
+      e = parseExpr();
       if(!match(R_BRACKET)){
-	printf("Syntax error\n"); 
-	exit(-1);
+		printf("Syntax error\n"); 
+		exit(-1);
       }
-      return;
+      return e;
     }
-    
-    printf("%d\n", value);
+    if(nextToken != 8) {
+		printf("Error, expected ( Expression ) or a number. Abort\n");
+		exit(-1);
+	}
+    ExpTree num = newExpTreeNode(1, value, NULL, NULL);
     nextToken = yylex();
+    return num;
+}
+
+void printPostfix(ExpTree t){
+  if(NULL == t){
+    return;
+  }
+  printPostfix(t->left);
+  printPostfix(t->right);
+  if(t->tt == 1){ //Number
+    printf("%d ", t->t);
+  }else if(t->tt == 2){ //operator
+    switch(t->t){
+      case 1:
+	printf("+ ");
+	break;
+      case 2:
+	printf("- ");
+	break;
+      case 3:
+	printf("* ");
+      case 4:
+	printf("/ ");
+      case 5:
+	printf("^ "); 
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
   nextToken = yylex();
-  //TODO: make tree here
-  parseExpr(); //TODO: should still fill tree
-  //TODO: print tree here
+  ExpTree tree = parseExpr(); //TODO: should still fill tree
+  printPostfix(tree);
+  putchar('\n');
+  yylex_destroy();
   return 0;
 }
