@@ -61,3 +61,13 @@ ExpTree newExpTreeNode(TokenType tt, Token t, ExpTree tL, ExpTree tR) {
   new->right = tR;
   return new;
 }
+
+/* freeExpTree frees the memory of the nodes in the expression tree */
+void freeExpTree(ExpTree tr) {
+  if (tr==NULL) {
+    return;
+  }
+  freeExpTree(tr->left);
+  freeExpTree(tr->right);
+  free(tr);
+}
