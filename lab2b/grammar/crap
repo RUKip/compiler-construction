@@ -43,3 +43,21 @@ NTail	[("^" {N})?]
 1 + 2 + 3 * 4 + 3
 
 Num + Num + (Num * Num) + Num
+
+typedef struct ExpTreeNode {
+  TokenType tt;
+  Token t;
+  ExpTree left;
+  ExpTree right;
+} ExpTreeNode;
+
+/* creates a new node for an expression tree */
+ExpTree newExpTreeNode(TokenType tt, Token t, ExpTree tL, ExpTree tR) {
+  ExpTree new = malloc(sizeof(ExpTreeNode));
+  assert (new!=NULL);
+  new->tt = tt;
+  new->t = t;
+  new->left = tL;
+  new->right = tR;
+  return new;
+}
