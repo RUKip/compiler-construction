@@ -1,0 +1,8 @@
+program HelloWorld(output);
+var
+	PUNKTPUNT : array [1 .. 2] of real;
+var
+	ANFANG: integer;
+begin
+  ANFANG := 1 div 1.0 * ENDE
+end.

@@ -1,11 +1,81 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include "parser.tab.h"
 
-NUMBER			[0-9]+
-IDENTIFIER		[a-zA-Z][a-zA-Z0-9]*
+void showLine();
+void initLexer(char *filename);
+void finalizeLexer();
 
+static char *inputbuffer;
+int linenr = 1; 
+%}	
+			
 %%
 
-{IDENTIFIER}	printf("id\n");
-{NUMBER}		printf("num\n");
-[ \t\r\n]*		;
+of				{printf("of "); return OF;}
+if				{printf("if "); return IF;}
+then				{printf("then "); return THEN;}
+else				{printf("else "); return ELSE;}
+while				{printf("while "); return WHILE;}
+do 				{printf("do "); return DO;}
+not				{printf("not "); return NOT;}
+real				{printf("real "); return REAL;}
+integer				{printf("integer "); return INTEGER;}
+".."				{printf(".. "); return PUNKTPUNKT;}
+":="				{printf(":= "); return ASSIGNOP;}
+procedure			{printf("procedure "); return PROCEDURE;}
+function			{printf("function "); return FUNCTION;}
+array				{printf("array "); return ARRAY;}
+var				{printf("var "); return VAR;}
+program				{printf("program "); return PROGRAM;}
+begin				{printf("begin "); return ANFANG;}
+end				{printf("end "); return ENDE;}
+[0-9]+("."[0-9]+)?		{printf("num "); return NUM;}
+"*"|"/"|"div"|"mod"		{printf("mulop: "); return MULOP;}
+"+"|"-"				{printf("addop "); return ADDOP;}
+"<"|">"|"<="|">="|"<>"|"=" 	{printf("relop "); return RELOP;}
+[ \t\r]*			;
+[a-zA-Z][a-zA-Z0-9]*		{printf("id "); return ID;}
+\n				{printf("\n"); linenr++;}
+.				{printf(yytext); return *yytext;}
 
 %%
+void initLexer(char *filename) {
+  FILE *f = fopen(filename, "r");
+  int length;
+  
+  if (f == NULL) {
+    fprintf(stderr, "Error: failed to open file\n");
+    exit(EXIT_FAILURE);
+  }
+  fseek (f, 0, SEEK_END);
+  length = ftell (f);
+  fseek (f, 0, SEEK_SET);
+  inputbuffer = malloc (length+1);
+  inputbuffer[length]='\0';
+  length = fread (inputbuffer, 1, length, f);
+  fclose (f);
+  yyin = fopen(filename, "r");
+}
+
+void showLine() {
+  char *p = inputbuffer;
+  int line = linenr;
+  while ((*p != '\0') && (line > 1)) {
+    line -= (*p == '\n');
+    p++;
+  }
+  printf("line %3d: ", linenr);
+  while ((*p != '\0') && (*p != '\n')) {
+    putchar(*p);
+    p++;
+  }
+  putchar('\n');
+}
+ 
+void finalizeLexer() {
+  free(inputbuffer);
+  yylex_destroy();
+}
+ 

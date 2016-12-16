@@ -1,0 +1,6 @@
+
+
+void initLexer(char *filename);
+void showLine();
+void finalizeLexer();
+
