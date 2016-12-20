@@ -13,32 +13,32 @@ int linenr = 1;
 			
 %%
 
-of				{printf("of "); return OF;}
-if				{printf("if "); return IF;}
-then				{printf("then "); return THEN;}
-else				{printf("else "); return ELSE;}
-while				{printf("while "); return WHILE;}
-do 				{printf("do "); return DO;}
-not				{printf("not "); return NOT;}
-real				{printf("real "); return REAL;}
-integer				{printf("integer "); return INTEGER;}
-".."				{printf(".. "); return PUNKTPUNKT;}
-":="				{printf(":= "); return ASSIGNOP;}
-procedure			{printf("procedure "); return PROCEDURE;}
-function			{printf("function "); return FUNCTION;}
-array				{printf("array "); return ARRAY;}
-var				{printf("var "); return VAR;}
-program				{printf("program "); return PROGRAM;}
-begin				{printf("begin "); return ANFANG;}
-end				{printf("end "); return ENDE;}
-[0-9]+("."[0-9]+)?		{printf("num "); return NUM;}
-"*"|"/"|"div"|"mod"		{printf("mulop: "); return MULOP;}
-"+"|"-"				{printf("addop "); return ADDOP;}
-"<"|">"|"<="|">="|"<>"|"=" 	{printf("relop "); return RELOP;}
-[ \t\r]*			;
-[a-zA-Z][a-zA-Z0-9]*		{printf("id "); return ID;}
-\n				{printf("\n"); linenr++;}
-.				{printf(yytext); return *yytext;}
+(?i:of)					{return OF;}
+(?i:if)					{return IF;}
+(?i:then)				{return THEN;}
+(?i:else)				{return ELSE;}
+(?i:while)				{return WHILE;}
+(?i:do) 				{return DO;}
+(?i:not)				{return NOT;}
+(?i:real)				{return REAL;}
+(?i:integer)			{return INTEGER;}
+".."					{return PUNKTPUNKT;}
+":="					{return ASSIGNOP;}
+(?i:procedure)			{return PROCEDURE;}
+(?i:function)			{return FUNCTION;}
+(?i:array)				{return ARRAY;}
+(?i:var)				{return VAR;}
+(?i:program)			{return PROGRAM;}
+(?i:begin)				{return ANFANG;}
+(?i:end)				{return ENDE;}
+[0-9]+("."[0-9]+)?		{return NUM;}
+"*"|"/"|"div"|"mod"		{return MULOP;}
+"+"|"-"					{return ADDOP;}
+"<"|">"|"<="|">="|"<>"|"=" 	{return RELOP;}
+[ \t\r]*				;
+[a-zA-Z]([a-zA-Z0-9]|"_")*	{return ID;}
+\n						{printf("\n"); linenr++;}
+.						{printf(yytext); return *yytext;}
 
 %%
 void initLexer(char *filename) {
@@ -77,5 +77,6 @@ void showLine() {
 void finalizeLexer() {
   free(inputbuffer);
   yylex_destroy();
+  printf("accepted");
 }
  
