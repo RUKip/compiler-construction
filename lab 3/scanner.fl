@@ -10,7 +10,8 @@ void finalizeLexer();
 static char *inputbuffer;
 int linenr = 1; 
 %}	
-			
+%x COMMENT
+
 %%
 
 (?i:of)					{return OF;}
@@ -37,8 +38,12 @@ int linenr = 1;
 "<"|">"|"<="|">="|"<>"|"=" 	{return RELOP;}
 [ \t\r]*				;
 [a-zA-Z]([a-zA-Z0-9]|"_")*	{return ID;}
-\n						{printf("\n"); linenr++;}
-.						{printf(yytext); return *yytext;}
+\n						{linenr++;}
+"{"             {BEGIN(COMMENT);}
+<COMMENT>"}"   {BEGIN(INITIAL);}
+<COMMENT>\n    {linenr++;}
+<COMMENT>.     ;
+.						{return *yytext;}
 
 %%
 void initLexer(char *filename) {
@@ -77,6 +82,6 @@ void showLine() {
 void finalizeLexer() {
   free(inputbuffer);
   yylex_destroy();
-  printf("accepted");
+  printf("accepted\n");
 }
  
