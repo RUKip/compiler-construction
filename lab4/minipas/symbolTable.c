@@ -49,21 +49,21 @@ static unsigned int hash(char *str) {
   return hash%TABSIZE;
 }
 
-static int *linearSearch(char *strtabEntry, bucket b) {
+Type linearSearch(char *strtabEntry, bucket b) {
   while (b != NULL) {
     if (strtabEntry == b->key) {
       return b->type;
     }
     b = b-> next;
   }
-  return NULL;
+  return 0;
 }
 
-void *lookupSymbol(char *strtabEntry) {
+Type lookupSymbol(char *strtabEntry) {
   return linearSearch(strtabEntry, hashtab[hash(strtabEntry)]);
 }
 
-void insertSymbol(char *strtabEntry, int type, unsigned int size) {
+void insertSymbol(char *strtabEntry, Type type, unsigned int size) {
   unsigned int h = hash(strtabEntry);
   bucket nxt = hashtab[h];
   hashtab[h] = malloc(sizeof(struct bucket));
@@ -75,7 +75,7 @@ void insertSymbol(char *strtabEntry, int type, unsigned int size) {
 void removeSymbol(char *strtabEntry) {
   unsigned int h = hash(strtabEntry);
   bucket b = hashtab[h];
-  if (linearSearch(strtabEntry, hashtab[h]) == NULL) {
+  if (linearSearch(strtabEntry, hashtab[h]) == 0) {
     fprintf(stderr, "Error in removeSymbol(%s): not found\n", strtabEntry);
     exit(EXIT_FAILURE);
   }

@@ -108,10 +108,6 @@ term               : factor
                    ;
 
 factor             : IDENTIFIER
-                   {
-		    if ($1.type == INTEGER || $1.type == REAL){
-		    }
-                   }
                    | IDENTIFIER '(' exprlist ')'
                    | NUMBER
                    | '(' expression ')'
