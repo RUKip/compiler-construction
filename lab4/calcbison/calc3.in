@@ -1,0 +1,8 @@
+let x=21;
+let y=2;
+x*y;
+let pi=3.14159265;
+let hp = pi/2;
+pi;
+hp;
+pi-2*hp;
