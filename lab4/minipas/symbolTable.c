@@ -4,27 +4,24 @@
 
 #define TABSIZE 97   /* choose a small prime */
 
-typedef enum Type {
-	INTEGER = 42,
-	REAL,
-} Type;
+//makeFile has symtab.c included in makefile to solve undifned refrences, might have errors if acting weird
 
 typedef struct bucket {
   char *key;   /* pointer to entry in the string table */
-  enum Type type;  
+  int type;  //265 is INT, 266 is REAL
   struct bucket *next;
 } *bucket;
 
-static bucket hashtab[TABSIZE];
-
-void initSymbolTable(void) {
+bucket* initSymbolTable() {
   unsigned int i;
+  bucket* hashtab = malloc(sizeof(bucket)*TABSIZE);
   for (i=0; i < TABSIZE; i++) {
     hashtab[i] = NULL;
   }
+  return hashtab;
 }
 
-void freeSymbolTable(void) {
+void freeSymbolTable(bucket hashtab[]) {
   unsigned int i;
   for (i=0; i < TABSIZE; i++) {
     while (hashtab[i] != NULL) {
@@ -49,7 +46,7 @@ static unsigned int hash(char *str) {
   return hash%TABSIZE;
 }
 
-Type linearSearch(char *strtabEntry, bucket b) {
+int linearSearch(char *strtabEntry, bucket b) {
   while (b != NULL) {
     if (strtabEntry == b->key) {
       return b->type;
@@ -59,11 +56,11 @@ Type linearSearch(char *strtabEntry, bucket b) {
   return 0;
 }
 
-Type lookupSymbol(char *strtabEntry) {
+int lookupSymbol(bucket hashtab[], char *strtabEntry) {
   return linearSearch(strtabEntry, hashtab[hash(strtabEntry)]);
 }
 
-void insertSymbol(char *strtabEntry, Type type, unsigned int size) {
+void insertSymbol(bucket hashtab[], char *strtabEntry, int type) {
   unsigned int h = hash(strtabEntry);
   bucket nxt = hashtab[h];
   hashtab[h] = malloc(sizeof(struct bucket));
@@ -72,7 +69,7 @@ void insertSymbol(char *strtabEntry, Type type, unsigned int size) {
   hashtab[h]->type = type;
 }
 
-void removeSymbol(char *strtabEntry) {
+void removeSymbol(bucket hashtab[], char *strtabEntry) {
   unsigned int h = hash(strtabEntry);
   bucket b = hashtab[h];
   if (linearSearch(strtabEntry, hashtab[h]) == 0) {

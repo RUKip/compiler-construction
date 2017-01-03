@@ -1,8 +1,12 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "symbolTable.h"
 #include "lex.yy.c"
 
+bucket* globalTable;
+bucket* localTable;
+int isGlobal; //0 if it aint global else 1
 int yyerror (char *msg) {
   showLine();
   fprintf (stderr, "%s (token=%s)\n", msg, yytext);
@@ -24,8 +28,30 @@ program            : PROGRAM IDENTIFIER '(' identlist ')' ';'
 	                 '.'
                    ;
 
-identlist          : IDENTIFIER
-                   | identlist ',' IDENTIFIER
+identlist          : IDENTIFIER	
+		     { 
+		      if (isGlobal){
+			printf("isGlobal ");
+			printf("%s\n", yytext);
+			insertSymbol(globalTable, yytext, 266); //TODO has to be a valid type not always REAL 
+		      }else{
+			printf("isLocal ");
+			printf("%s\n", yytext);
+			insertSymbol(localTable, yytext, 266);
+		      }
+		     }
+                   | identlist ',' IDENTIFIER			     
+                   { 
+		      if (isGlobal){
+			printf("isGlobal ");
+			printf("%s\n", yytext);
+			insertSymbol(globalTable, yytext, 266); //TODO has to be a valid type not always REAL 
+		      }else{
+			printf("isLocal ");
+			printf("%s\n", yytext);
+			insertSymbol(localTable, yytext, 266);
+		      }
+		     }
                    ;
 
 declarations       : declarations VAR identlist ':' type ';'
@@ -47,7 +73,7 @@ subprogdecls       : subprogdecls subprogdecl ';'
 subprogdecl        : subprogheading declarations compoundstatement
                    ;
 
-subprogheading     : FUNCTION IDENTIFIER arguments ':' standardtype ';'
+subprogheading     : FUNCTION {printf("test\n"); isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ':' standardtype ';' {printf("%p: z\n", lookupSymbol(globalTable, "z"));}
                    | PROCEDURE IDENTIFIER arguments ';'
                    ;
 
@@ -122,7 +148,11 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
   initLexer(argv[1]);
+  isGlobal = 1;
+  globalTable = initSymbolTable();
   yyparse();
   finalizeLexer();
+  free(globalTable);
+  free(localTable);
   return EXIT_SUCCESS;
 }
