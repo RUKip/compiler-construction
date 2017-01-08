@@ -1,0 +1,397 @@
+Terminals unused in grammar
+
+   BOOLCONST
+   VAR
+   INT
+   REAL
+
+
+Grammar
+
+    0 $accept: Input $end
+
+    1 Input: %empty
+    2      | Input Line ';'
+
+    3 Line: LET IDENTIFIER '=' Expr
+    4     | Expr
+
+    5 Expr: INTCONST
+    6     | FLOATCONST
+    7     | IDENTIFIER
+    8     | Expr '+' Expr
+    9     | Expr '-' Expr
+   10     | Expr '*' Expr
+   11     | Expr '/' Expr
+   12     | Expr '^' Expr
+   13     | '-' Expr
+   14     | '(' Expr ')'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'(' (40) 14
+')' (41) 14
+'*' (42) 10
+'+' (43) 8
+'-' (45) 9 13
+'/' (47) 11
+';' (59) 2
+'=' (61) 3
+'^' (94) 12
+error (256)
+FLOATCONST (258) 6
+INTCONST (259) 5
+BOOLCONST (260)
+IDENTIFIER (261) 3 7
+VAR (262)
+INT (263)
+REAL (264)
+LET (265) 3
+NEG (266)
+
+
+Nonterminals, with rules where they appear
+
+$accept (21)
+    on left: 0
+Input (22)
+    on left: 1 2, on right: 0 2
+Line (23)
+    on left: 3 4, on right: 2
+Expr (24)
+    on left: 5 6 7 8 9 10 11 12 13 14, on right: 3 4 8 9 10 11 12 13
+    14
+
+
+State 0
+
+    0 $accept: . Input $end
+
+    $default  reduce using rule 1 (Input)
+
+    Input  go to state 1
+
+
+State 1
+
+    0 $accept: Input . $end
+    2 Input: Input . Line ';'
+
+    $end        shift, and go to state 2
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    LET         shift, and go to state 6
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Line  go to state 9
+    Expr  go to state 10
+
+
+State 2
+
+    0 $accept: Input $end .
+
+    $default  accept
+
+
+State 3
+
+    6 Expr: FLOATCONST .
+
+    $default  reduce using rule 6 (Expr)
+
+
+State 4
+
+    5 Expr: INTCONST .
+
+    $default  reduce using rule 5 (Expr)
+
+
+State 5
+
+    7 Expr: IDENTIFIER .
+
+    $default  reduce using rule 7 (Expr)
+
+
+State 6
+
+    3 Line: LET . IDENTIFIER '=' Expr
+
+    IDENTIFIER  shift, and go to state 11
+
+
+State 7
+
+   13 Expr: '-' . Expr
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 12
+
+
+State 8
+
+   14 Expr: '(' . Expr ')'
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 13
+
+
+State 9
+
+    2 Input: Input Line . ';'
+
+    ';'  shift, and go to state 14
+
+
+State 10
+
+    4 Line: Expr .
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+
+    '+'  shift, and go to state 15
+    '-'  shift, and go to state 16
+    '*'  shift, and go to state 17
+    '/'  shift, and go to state 18
+    '^'  shift, and go to state 19
+
+    $default  reduce using rule 4 (Line)
+
+
+State 11
+
+    3 Line: LET IDENTIFIER . '=' Expr
+
+    '='  shift, and go to state 20
+
+
+State 12
+
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+   13     | '-' Expr .
+
+    $default  reduce using rule 13 (Expr)
+
+
+State 13
+
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+   14     | '(' Expr . ')'
+
+    '+'  shift, and go to state 15
+    '-'  shift, and go to state 16
+    '*'  shift, and go to state 17
+    '/'  shift, and go to state 18
+    '^'  shift, and go to state 19
+    ')'  shift, and go to state 21
+
+
+State 14
+
+    2 Input: Input Line ';' .
+
+    $default  reduce using rule 2 (Input)
+
+
+State 15
+
+    8 Expr: Expr '+' . Expr
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 22
+
+
+State 16
+
+    9 Expr: Expr '-' . Expr
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 23
+
+
+State 17
+
+   10 Expr: Expr '*' . Expr
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 24
+
+
+State 18
+
+   11 Expr: Expr '/' . Expr
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 25
+
+
+State 19
+
+   12 Expr: Expr '^' . Expr
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 26
+
+
+State 20
+
+    3 Line: LET IDENTIFIER '=' . Expr
+
+    FLOATCONST  shift, and go to state 3
+    INTCONST    shift, and go to state 4
+    IDENTIFIER  shift, and go to state 5
+    '-'         shift, and go to state 7
+    '('         shift, and go to state 8
+
+    Expr  go to state 27
+
+
+State 21
+
+   14 Expr: '(' Expr ')' .
+
+    $default  reduce using rule 14 (Expr)
+
+
+State 22
+
+    8 Expr: Expr . '+' Expr
+    8     | Expr '+' Expr .
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+
+    '*'  shift, and go to state 17
+    '/'  shift, and go to state 18
+    '^'  shift, and go to state 19
+
+    $default  reduce using rule 8 (Expr)
+
+
+State 23
+
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+    9     | Expr '-' Expr .
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+
+    '*'  shift, and go to state 17
+    '/'  shift, and go to state 18
+    '^'  shift, and go to state 19
+
+    $default  reduce using rule 9 (Expr)
+
+
+State 24
+
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   10     | Expr '*' Expr .
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+
+    '^'  shift, and go to state 19
+
+    $default  reduce using rule 10 (Expr)
+
+
+State 25
+
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   11     | Expr '/' Expr .
+   12     | Expr . '^' Expr
+
+    '^'  shift, and go to state 19
+
+    $default  reduce using rule 11 (Expr)
+
+
+State 26
+
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+   12     | Expr '^' Expr .
+
+    '^'  shift, and go to state 19
+
+    $default  reduce using rule 12 (Expr)
+
+
+State 27
+
+    3 Line: LET IDENTIFIER '=' Expr .
+    8 Expr: Expr . '+' Expr
+    9     | Expr . '-' Expr
+   10     | Expr . '*' Expr
+   11     | Expr . '/' Expr
+   12     | Expr . '^' Expr
+
+    '+'  shift, and go to state 15
+    '-'  shift, and go to state 16
+    '*'  shift, and go to state 17
+    '/'  shift, and go to state 18
+    '^'  shift, and go to state 19
+
+    $default  reduce using rule 3 (Line)
