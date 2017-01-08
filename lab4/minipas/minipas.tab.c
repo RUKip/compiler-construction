@@ -67,9 +67,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "symbolTable.h"
+#include "strtab.h"
 #include "lex.yy.c"
 
-bucket* globalTable;
+bucket* globalTable; //TODO might be empty
 bucket* localTable;
 int isGlobal; //0 if it aint global else 1
 int yyerror (char *msg) {
@@ -79,7 +80,7 @@ int yyerror (char *msg) {
 }
 
 
-#line 83 "minipas.tab.c" /* yacc.c:339  */
+#line 84 "minipas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -155,7 +156,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 159 "minipas.tab.c" /* yacc.c:358  */
+#line 160 "minipas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -454,12 +455,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    24,    24,    31,    43,    57,    58,    61,    62,    65,
-      66,    69,    70,    73,    76,    76,    77,    80,    81,    84,
-      85,    88,    91,    92,    95,    96,    99,   100,   101,   102,
-     103,   106,   107,   110,   111,   114,   115,   118,   119,   122,
-     123,   124,   125,   128,   129,   132,   133,   136,   137,   138,
-     139,   140
+       0,    25,    25,    32,    44,    58,    59,    62,    63,    66,
+      67,    70,    71,    74,    77,    77,    78,    81,    82,    85,
+      86,    89,    92,    93,    96,    97,   100,   101,   102,   103,
+     104,   107,   108,   111,   112,   115,   116,   119,   120,   123,
+     124,   125,   126,   129,   130,   133,   134,   137,   138,   139,
+     140,   141
 };
 #endif
 
@@ -1303,51 +1304,45 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 32 "minipas.y" /* yacc.c:1646  */
+#line 33 "minipas.y" /* yacc.c:1646  */
     { 
 		      if (isGlobal){
 			printf("isGlobal ");
 			printf("%s\n", yytext);
-			insertSymbol(globalTable, yytext, 266); //TODO has to be a valid type not always REAL 
+			insertSymbol(globalTable, insertStringTable(yytext), 266); //TODO has to be a valid type not always REAL 
 		      }else{
 			printf("isLocal ");
 			printf("%s\n", yytext);
-			insertSymbol(localTable, yytext, 266);
+			insertSymbol(localTable, insertStringTable(yytext), 266);
 		      }
 		     }
-#line 1319 "minipas.tab.c" /* yacc.c:1646  */
+#line 1320 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 44 "minipas.y" /* yacc.c:1646  */
+#line 45 "minipas.y" /* yacc.c:1646  */
     { 
 		      if (isGlobal){
 			printf("isGlobal ");
 			printf("%s\n", yytext);
-			insertSymbol(globalTable, yytext, 266); //TODO has to be a valid type not always REAL 
+			insertSymbol(globalTable, insertStringTable(yytext), 266); //TODO has to be a valid type not always REAL 
 		      }else{
 			printf("isLocal ");
 			printf("%s\n", yytext);
-			insertSymbol(localTable, yytext, 266);
+			insertSymbol(localTable, insertStringTable(yytext), 266);
 		      }
 		     }
-#line 1335 "minipas.tab.c" /* yacc.c:1646  */
+#line 1336 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 76 "minipas.y" /* yacc.c:1646  */
-    {printf("test\n"); isGlobal = 0; free(localTable); localTable = initSymbolTable();}
-#line 1341 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 15:
-#line 76 "minipas.y" /* yacc.c:1646  */
-    {printf("%p: z\n", lookupSymbol(globalTable, "z"));}
-#line 1347 "minipas.tab.c" /* yacc.c:1646  */
+#line 77 "minipas.y" /* yacc.c:1646  */
+    {printf("new function start\n"); isGlobal = 0; free(localTable); localTable = initSymbolTable();}
+#line 1342 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1351 "minipas.tab.c" /* yacc.c:1646  */
+#line 1346 "minipas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1575,7 +1570,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 143 "minipas.y" /* yacc.c:1906  */
+#line 144 "minipas.y" /* yacc.c:1906  */
 
 
 int main(int argc, char *argv[]) {
@@ -1587,7 +1582,25 @@ int main(int argc, char *argv[]) {
   isGlobal = 1;
   globalTable = initSymbolTable();
   yyparse();
+  showStringTable();
+    int i, sum = 0;
+  for(i=0; i<97; i++){
+    if(globalTable[i] == NULL){
+      sum++;
+    }else{
+      printf("element %d key: %s\n",i, globalTable[i]->key);
+      printf("element %d type: %d\n",i, globalTable[i]->type);
+    }
+  }
+  printf("sum: %d\n", sum);
+  freeStringTable();
   finalizeLexer();
+
+  if(globalTable[0] == NULL){
+    printf("isNull globalTable\n");
+  }else{
+    printf("first element: %s\n", globalTable[0]->key);
+  }
   free(globalTable);
   free(localTable);
   return EXIT_SUCCESS;

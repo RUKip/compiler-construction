@@ -21,7 +21,7 @@ bucket* initSymbolTable() {
   return hashtab;
 }
 
-void freeSymbolTable(bucket hashtab[]) {
+void freeSymbolTable(bucket* hashtab) {
   unsigned int i;
   for (i=0; i < TABSIZE; i++) {
     while (hashtab[i] != NULL) {
@@ -56,11 +56,11 @@ int linearSearch(char *strtabEntry, bucket b) {
   return 0;
 }
 
-int lookupSymbol(bucket hashtab[], char *strtabEntry) {
+int lookupSymbol(bucket* hashtab, char *strtabEntry) {
   return linearSearch(strtabEntry, hashtab[hash(strtabEntry)]);
 }
 
-void insertSymbol(bucket hashtab[], char *strtabEntry, int type) {
+void insertSymbol(bucket* hashtab, char *strtabEntry, int type) {
   unsigned int h = hash(strtabEntry);
   bucket nxt = hashtab[h];
   hashtab[h] = malloc(sizeof(struct bucket));
@@ -69,7 +69,7 @@ void insertSymbol(bucket hashtab[], char *strtabEntry, int type) {
   hashtab[h]->type = type;
 }
 
-void removeSymbol(bucket hashtab[], char *strtabEntry) {
+void removeSymbol(bucket* hashtab, char *strtabEntry) {
   unsigned int h = hash(strtabEntry);
   bucket b = hashtab[h];
   if (linearSearch(strtabEntry, hashtab[h]) == 0) {
