@@ -8,6 +8,23 @@
 static unsigned tabsize, idx;
 char *strtab = NULL;
 
+void initializeStringTable(char* filename){
+  //new stuff
+  FILE *f = fopen(filename, "r");
+  int length;
+  if (f == NULL) {
+    fprintf(stderr, "Error: failed to open file\n");
+    exit(EXIT_FAILURE);
+  }
+  fseek (f, 0, SEEK_END);
+  length = ftell (f);
+  fseek (f, 0, SEEK_SET);
+  strtab = malloc (length+1);
+  fclose (f);
+  //end of new stuff
+}
+
+
 static void resize(int sz) {
   if (idx + sz >= tabsize) {
 	tabsize = (tabsize == 0 ? 2 : 2*tabsize);

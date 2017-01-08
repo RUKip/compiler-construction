@@ -65,14 +65,23 @@ extern int yydebug;
     WHILE = 275,
     DO = 276,
     RELOP = 277,
-    MULOP = 278,
-    NOT = 279
+    MULOP = 278
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE YYSTYPE;
+union YYSTYPE
+{
+#line 52 "minipas.y" /* yacc.c:1909  */
+
+  float fval;
+  int ival;
+  char *strtabptr;
+
+#line 84 "minipas.tab.h" /* yacc.c:1909  */
+};
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

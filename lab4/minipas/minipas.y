@@ -5,7 +5,7 @@
 #include "strtab.h"
 #include "lex.yy.c"
 
-bucket* globalTable; //TODO might be empty
+bucket* globalTable; 
 bucket* localTable;
 int isGlobal; //0 if it aint global else 1
 int yyerror (char *msg) {
@@ -14,12 +14,56 @@ int yyerror (char *msg) {
   exit(EXIT_FAILURE);
 }
 
+//TODO getType gives a segmentation fault
+int getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in stringtable
+
+  if(lookupStringTable(strtabEntry) == NULL){
+    printf("variable not delcared\n");
+    exit(-1);
+  }
+  
+  int typeLocal = *((int *) lookupSymbol(localTable, strtabEntry));
+  //printf("debug typelocal: %d\n", typeLocal);
+  //printf("debug lookupSymbol: %d\n", lookupSymbol(localTable, strtabEntry));
+  if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
+    if (*((int *) lookupSymbol(globalTable, strtabEntry)) == 0){
+      printf("variable locally declared not accesible\n");
+      exit(-1);
+    }
+    return *((int *) lookupSymbol(globalTable, strtabEntry));
+  }
+  return typeLocal; 
+}
+
+void checkDoubleDeclaration(char *strtabEntry){
+    if (*((int *) lookupSymbol(localTable, strtabEntry)) == 0){
+     if (*((int *) lookupSymbol(globalTable, strtabEntry)) == 0){
+	return; //everything is fine not declared before
+      } 
+    }
+    printf("already declared double declaration\n");
+    exit(-1);
+}
+
 %}
+
+//TODO should check: types at calculations/assignments, availablity and initialization of variables, number of arguments in funcion call, type of arguments in funtion call, double declarations(check global and local), function return type.
+
+%union {
+  float fval;
+  int ival;
+  char *strtabptr;
+}
 
 %token PROGRAM IDENTIFIER VAR ARRAY RANGE NUMBER OF INTEGER REAL
        FUNCTION PROCEDURE BEGINTOK ENDTOK ASSIGN IF THEN ELSE WHILE DO
-       RELOP MULOP NOT
+       RELOP MULOP
 
+       
+%type <fval> NUMBER
+%type <ival> factor expression simpleexpr term
+%type <strtabptr> IDENTIFIER
+       
 %%
 
 program            : PROGRAM IDENTIFIER '(' identlist ')' ';'
@@ -41,7 +85,7 @@ identlist          : IDENTIFIER
 			insertSymbol(localTable, insertStringTable(yytext), 266);
 		      }
 		     }
-                   | identlist ',' IDENTIFIER			     
+                   | identlist ',' IDENTIFIER		     
                    { 
 		      if (isGlobal){
 			printf("isGlobal ");
@@ -55,7 +99,7 @@ identlist          : IDENTIFIER
 		     }
                    ;
 
-declarations       : declarations VAR identlist ':' type ';' //TODO add type here
+declarations       : declarations VAR identlist ':' type ';' //TODO add type here?
 	               | /* epsilon */
                    ;
 
@@ -97,7 +141,13 @@ statementlist      : statement
                    | statementlist ';' statement
                    ;
 
-statement          : variable ASSIGN expression
+statement          : variable ASSIGN expression 
+		      /*{
+			if(!(getType($1) == $3)){
+			  printf("type mismatch\n");
+			  exit(-1);
+			};
+		      }*/
                    | procstatement
                    | compoundstatement
                    | IF expression THEN statement ELSE statement
@@ -116,14 +166,14 @@ exprlist           : expression
                    | exprlist ',' expression
                    ;
 
-expression         : simpleexpr
+expression         : simpleexpr			
                    | simpleexpr RELOP simpleexpr
                    ;
 
 simpleexpr         : term
-                   | sign term
-                   | simpleexpr '+' term 
-                   | simpleexpr '-' term
+                   | sign term			{$$ = $2;}
+                   | simpleexpr '+' term 	{$$ = $1 + $3;}
+                   | simpleexpr '-' term	{$$ = $1 - $3;}
                    ;
 
 sign               : '+'
@@ -134,11 +184,10 @@ term               : factor
                    | term MULOP factor
                    ;
 
-factor             : IDENTIFIER
-                   | IDENTIFIER '(' exprlist ')'
-                   | NUMBER
-                   | '(' expression ')'
-                   | NOT factor
+factor             : IDENTIFIER 			{$$ = 0;}//{$$ = getType($1);}
+                   | IDENTIFIER '(' exprlist ')' 	{$$ = 0;}//{$$ = getType($1);} //TODO implement
+                   | NUMBER				{$$ = $1;}
+                   | '(' expression ')'			{$$ = $2;}
                    ;
 
 %%
@@ -148,6 +197,11 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Usage: %s <pasfile>\n", argv[0]);
     return EXIT_FAILURE;
   }
+  
+  //newstuff probably remove and ofcourse underlying function
+  initializeStringTable(argv[1]);
+  //endnewstuff
+  
   initLexer(argv[1]);
   isGlobal = 1;
   globalTable = initSymbolTable();
