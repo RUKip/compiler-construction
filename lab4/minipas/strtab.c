@@ -31,7 +31,7 @@ static void resize(int sz) {
 	while (idx + sz >= tabsize) {
 	  tabsize *= 2;
 	}
-	strtab = realloc(strtab, tabsize);
+	//strtab = realloc(strtab, tabsize);
   }
 }
 

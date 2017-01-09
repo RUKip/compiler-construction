@@ -65,9 +65,9 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 [Dd][Ii][Vv]                  { eat(); return MULOP;  }
 [Mm][Oo][Dd]                  { eat(); return MULOP;  }
 
-{DIGIT}+                      { eat(); return NUMBER; }
-{DIGIT}+"."{DIGIT}*           { eat(); return NUMBER; }
-{ID}                          { eat(); return IDENTIFIER; }
+{DIGIT}+                      { eat(); yylval.type=265; return NUMBER; }
+{DIGIT}+"."{DIGIT}*           { eat(); yylval.type=266; return NUMBER; }
+{ID}                          { eat(); yylval.strtabptr=yytext; return IDENTIFIER; }
 
 "{"[^}]*"}"                   { eat(); /* eat comment */ }
 

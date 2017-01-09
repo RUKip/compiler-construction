@@ -17,17 +17,20 @@ int yyerror (char *msg) {
 //TODO getType gives a segmentation fault
 int getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in stringtable
 
-  if(lookupStringTable(strtabEntry) == NULL){
+  printf("%s is our string\n", strtabEntry);
+
+/*  if(lookupStringTable(strtabEntry) == NULL){
     printf("variable not delcared\n");
     exit(-1);
   }
+  */
   
   int typeLocal = *((int *) lookupSymbol(localTable, strtabEntry));
-  //printf("debug typelocal: %d\n", typeLocal);
-  //printf("debug lookupSymbol: %d\n", lookupSymbol(localTable, strtabEntry));
+  printf("debug typelocal: %d\n", typeLocal);
+  printf("debug lookupSymbol: %d\n", lookupSymbol(localTable, strtabEntry));
   if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
     if (*((int *) lookupSymbol(globalTable, strtabEntry)) == 0){
-      printf("variable locally declared not accesible\n");
+      printf("variable not declared or not accesible\n");
       exit(-1);
     }
     return *((int *) lookupSymbol(globalTable, strtabEntry));
@@ -50,8 +53,7 @@ void checkDoubleDeclaration(char *strtabEntry){
 //TODO should check: types at calculations/assignments, availablity and initialization of variables, number of arguments in funcion call, type of arguments in funtion call, double declarations(check global and local), function return type.
 
 %union {
-  float fval;
-  int ival;
+  int type;
   char *strtabptr;
 }
 
@@ -60,8 +62,7 @@ void checkDoubleDeclaration(char *strtabEntry){
        RELOP MULOP
 
        
-%type <fval> NUMBER
-%type <ival> factor expression simpleexpr term
+%type <type> NUMBER expression factor term simpleexpr
 %type <strtabptr> IDENTIFIER
        
 %%
@@ -150,8 +151,8 @@ statement          : variable ASSIGN expression
 		      }*/
                    | procstatement
                    | compoundstatement
-                   | IF expression THEN statement ELSE statement
-                   | WHILE expression DO statement
+                   | IF boolexpression THEN statement ELSE statement
+                   | WHILE boolexpression DO statement
                    ;
 
 variable           : IDENTIFIER
@@ -166,8 +167,10 @@ exprlist           : expression
                    | exprlist ',' expression
                    ;
 
-expression         : simpleexpr			
-                   | simpleexpr RELOP simpleexpr
+boolexpression	   : simpleexpr RELOP simpleexpr
+		   ;
+                   
+expression         : simpleexpr	
                    ;
 
 simpleexpr         : term
@@ -184,8 +187,8 @@ term               : factor
                    | term MULOP factor
                    ;
 
-factor             : IDENTIFIER 			{$$ = 0;}//{$$ = getType($1);}
-                   | IDENTIFIER '(' exprlist ')' 	{$$ = 0;}//{$$ = getType($1);} //TODO implement
+factor             : IDENTIFIER 			{$$ = getType($1);}
+                   | IDENTIFIER '(' exprlist ')' 	{$$ = getType($1);} //TODO implement
                    | NUMBER				{$$ = $1;}
                    | '(' expression ')'			{$$ = $2;}
                    ;

@@ -74,13 +74,12 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 52 "minipas.y" /* yacc.c:1909  */
+#line 54 "minipas.y" /* yacc.c:1909  */
 
-  float fval;
-  int ival;
+  int type;
   char *strtabptr;
 
-#line 84 "minipas.tab.h" /* yacc.c:1909  */
+#line 83 "minipas.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
