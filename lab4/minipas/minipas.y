@@ -4,12 +4,11 @@
 #include "symbolTable.h"
 #include "strtab.h"
 #include "lex.yy.c"
+#include "stack.h"
 
 bucket* globalTable; 
 bucket* localTable;
 int isGlobal; //0 if it aint global else 1
-int currentType = 0;
-char** identifierList;
 
 int yyerror (char *msg) {
   showLine();
@@ -17,20 +16,15 @@ int yyerror (char *msg) {
   exit(EXIT_FAILURE);
 }
 
-//TODO getType gives a segmentation fault
-int getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in stringtable
+int getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in the scope
 
   printf("%s is our string\n", strtabEntry);
 
- if(lookupStringTable(strtabEntry) == NULL){
-    printf("variable not delcared\n");
-    exit(-1);
-  }
   int typeLocal = lookupSymbol(localTable, strtabEntry);
   printf("debug typelocal: %d\n", typeLocal);
   if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
     if (lookupSymbol(globalTable, strtabEntry) == 0){
-      printf("variable not declared or not accesible\n");
+      printf("%s not declared or not accesible\n", strtabEntry);
       exit(-1);
     }
     return lookupSymbol(globalTable, strtabEntry);
@@ -48,6 +42,22 @@ void checkDoubleDeclaration(char *strtabEntry){
     exit(-1);
 }
 
+void insertSymbolsFromStack(int type) {
+	  bucket* currentTable;
+	  if (isGlobal) {
+		  while(!isEmpty()) {
+			char* ident = pop();
+			insertSymbol(globalTable, ident, type);
+		  }
+	  } else {
+		  while(!isEmpty()) {
+			char* ident = pop();
+			insertSymbol(localTable, ident, type);
+		  }
+	  }
+	  freeStack();
+}
+
 %}
 
 //TODO should check: types at calculations/assignments, availablity and initialization of variables, number of arguments in funcion call, type of arguments in funtion call, double declarations(check global and local), function return type.
@@ -62,7 +72,7 @@ void checkDoubleDeclaration(char *strtabEntry){
        RELOP MULOP
 
        
-%type <type> NUMBER expression factor term simpleexpr type standardtype
+%type <type> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL
 %type <strtabptr> IDENTIFIER
        
 %%
@@ -76,28 +86,19 @@ program            : PROGRAM IDENTIFIER '(' identlist ')' ';'
 
 identlist          : IDENTIFIER	
 					{ 
-						
+						initStack();
+						push($1);
 					}
                    | identlist ',' IDENTIFIER		     
-                   { 
+					{
+					   push($3);
 					}
                    ;
 
 declarations       : declarations VAR  identlist ':' type ';' 
 					{
-						for(identifier:identifierList){
-							  printf("typelocal: %d\n", currentType);
-							  if (isGlobal){
-								printf("isGlobal ");
-								printf("%s\n", yytext);
-								insertSymbol(globalTable, identifier, $5);
-							  }else{
-								printf("isLocal ");
-								printf("%s\n", yytext);
-								insertSymbol(localTable, identifier, $5);
-							  }
-						}
-					} //TODO add type here?
+						insertSymbolsFromStack($5);
+					}
 	               | /* epsilon */
                    ;
 
@@ -105,8 +106,8 @@ type               : standardtype
                    | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype {$$ = $8 + 2;} // 265 = int 267 = int[], 266 = real 268 = real[]
                    ;
 
-standardtype       : INTEGER {$$ = 265;}
-                   | REAL {$$ = 266;}
+standardtype       : INTEGER 
+                   | REAL
                    ;
 
 subprogdecls       : subprogdecls subprogdecl ';'
@@ -116,7 +117,7 @@ subprogdecls       : subprogdecls subprogdecl ';'
 subprogdecl        : subprogheading declarations compoundstatement
                    ;
 
-subprogheading     : FUNCTION {printf("new function start\n"); isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ':' standardtype ';'// {printf("z: %p\n", lookupSymbol(globalTable, "z"));}
+subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ':' standardtype ';' {insertSymbol(localTable, $3, $6);}
                    | PROCEDURE IDENTIFIER arguments ';'
                    ;
 
@@ -125,7 +126,9 @@ arguments          : '(' paramlist ')'
                    ;
 
 paramlist          : identlist ':' type
+					{insertSymbolsFromStack($3);}
                    | paramlist ';' identlist ':' type
+                   { insertSymbolsFromStack($5);}
                    ;
 
 compoundstatement  : BEGINTOK optionalstatements ENDTOK
@@ -165,15 +168,16 @@ exprlist           : expression
                    ;
 
 boolexpression	   : simpleexpr RELOP simpleexpr
-		   ;
+				   ;
                    
 expression         : simpleexpr	
+				   | boolexpression
                    ;
 
 simpleexpr         : term
-                   | sign term			{$$ = $2;}
-                   | simpleexpr '+' term 	{$$ = $1 + $3;}
-                   | simpleexpr '-' term	{$$ = $1 - $3;}
+                   | sign term				{$$ = $2;}
+                   | simpleexpr '+' term 	{}//typecheck
+                   | simpleexpr '-' term	{}//typecheck
                    ;
 
 sign               : '+'
@@ -184,10 +188,10 @@ term               : factor
                    | term MULOP factor
                    ;
 
-factor             : IDENTIFIER 			{$$ = getType($1);}
-                   | IDENTIFIER '(' exprlist ')' 	{$$ = getType($1);} //TODO implement
-                   | NUMBER				{$$ = $1;}
-                   | '(' expression ')'			{$$ = $2;}
+factor             : IDENTIFIER 					{$$ = getType($1);}
+                   | IDENTIFIER '(' exprlist ')' 	{$$ = getType($1);}
+                   | NUMBER							{$$ = $1;}
+                   | '(' expression ')'				{$$ = $2;}
                    ;
 
 %%

@@ -1,7 +1,7 @@
 all: main
 
 main : parser
-	gcc -o minipas minipas.tab.o symbolTable.c strtab.c stack.c -lfl
+	gcc -o minipas minipas.tab.o symbolTable.c strtab.c -lfl
 
 parser: minipas.y minipas.fl symbolTable.c strtab.c
 	bison -dv minipas.y

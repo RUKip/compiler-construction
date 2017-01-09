@@ -69,11 +69,12 @@
 #include "symbolTable.h"
 #include "strtab.h"
 #include "lex.yy.c"
+#include "stack.h"
 
 bucket* globalTable; 
 bucket* localTable;
 int isGlobal; //0 if it aint global else 1
-int currentType = 0;
+
 int yyerror (char *msg) {
   showLine();
   fprintf (stderr, "%s (token=%s)\n", msg, yytext);
@@ -93,7 +94,7 @@ int getType(char *strtabEntry){ //Returns the type of an variable, does also che
   printf("debug typelocal: %d\n", typeLocal);
   if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
     if (lookupSymbol(globalTable, strtabEntry) == 0){
-      printf("variable not declared or not accesible\n");
+      printf("%s not declared or not accesible\n", strtabEntry);
       exit(-1);
     }
     return lookupSymbol(globalTable, strtabEntry);
@@ -102,8 +103,8 @@ int getType(char *strtabEntry){ //Returns the type of an variable, does also che
 }
 
 void checkDoubleDeclaration(char *strtabEntry){
-    if (*((int *) lookupSymbol(localTable, strtabEntry)) == 0){
-     if (*((int *) lookupSymbol(globalTable, strtabEntry)) == 0){
+    if (lookupSymbol(localTable, strtabEntry) == 0){
+     if (lookupSymbol(globalTable, strtabEntry) == 0){
 	return; //everything is fine not declared before
       } 
     }
@@ -111,8 +112,24 @@ void checkDoubleDeclaration(char *strtabEntry){
     exit(-1);
 }
 
+void insertSymbolsFromStack(int type) {
+	  bucket* currentTable;
+	  if (isGlobal) {
+		  while(!isEmpty()) {
+			char* ident = pop();
+			insertSymbol(globalTable, ident, type);
+		  }
+	  } else {
+		  while(!isEmpty()) {
+			char* ident = pop();
+			insertSymbol(localTable, ident, type);
+		  }
+	  }
+	  freeStack();
+}
 
-#line 116 "minipas.tab.c" /* yacc.c:339  */
+
+#line 133 "minipas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -176,12 +193,12 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 53 "minipas.y" /* yacc.c:355  */
+#line 70 "minipas.y" /* yacc.c:355  */
 
   int type;
   char *strtabptr;
 
-#line 185 "minipas.tab.c" /* yacc.c:355  */
+#line 202 "minipas.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -196,7 +213,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 200 "minipas.tab.c" /* yacc.c:358  */
+#line 217 "minipas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -495,12 +512,12 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    68,    68,    75,    88,   102,   103,   106,   107,   110,
-     111,   114,   115,   118,   121,   121,   122,   125,   126,   129,
-     130,   133,   136,   137,   140,   141,   144,   151,   152,   153,
-     154,   157,   158,   161,   162,   165,   166,   169,   172,   175,
-     176,   177,   178,   181,   182,   185,   186,   189,   190,   191,
-     192
+       0,    85,    85,    92,    97,   103,   107,   110,   111,   114,
+     115,   118,   119,   122,   125,   125,   126,   129,   130,   133,
+     135,   139,   142,   143,   146,   147,   150,   157,   158,   159,
+     160,   163,   164,   167,   168,   171,   172,   175,   178,   181,
+     182,   183,   184,   187,   188,   191,   192,   195,   196,   197,
+     198
 };
 #endif
 
@@ -1343,112 +1360,104 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 76 "minipas.y" /* yacc.c:1646  */
+#line 93 "minipas.y" /* yacc.c:1646  */
     { 
-				 printf("typelocal: %d\n", currentType);
-		      if (isGlobal){
-			printf("isGlobal ");
-			printf("%s\n", yytext);
-			insertSymbol(globalTable, (yyvsp[0].strtabptr), currentType); //TODO has to be a valid type not always REAL 
-		      }else{
-			printf("isLocal ");
-			printf("%s\n", yytext);
-			insertSymbol(localTable, (yyvsp[0].strtabptr), currentType);
-		      }
-		     }
-#line 1360 "minipas.tab.c" /* yacc.c:1646  */
+						initStack();
+						push((yyvsp[0].strtabptr));
+					}
+#line 1369 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 89 "minipas.y" /* yacc.c:1646  */
-    { 
-		      if (isGlobal){
-			printf("isGlobal ");
-			printf("%s\n", yytext);
-			insertSymbol(globalTable, (yyvsp[0].strtabptr), currentType); //TODO has to be a valid type not always REAL 
-		      }else{
-			printf("isLocal ");
-			printf("%s\n", yytext);
-			insertSymbol(localTable, (yyvsp[0].strtabptr), currentType);
-		      }
-		     }
-#line 1376 "minipas.tab.c" /* yacc.c:1646  */
+#line 98 "minipas.y" /* yacc.c:1646  */
+    {
+					   push((yyvsp[0].strtabptr));
+					}
+#line 1377 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 102 "minipas.y" /* yacc.c:1646  */
-    {currentType = (yyvsp[-1].type);}
-#line 1382 "minipas.tab.c" /* yacc.c:1646  */
+#line 104 "minipas.y" /* yacc.c:1646  */
+    {
+						insertSymbolsFromStack((yyvsp[-1].type));
+					}
+#line 1385 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 107 "minipas.y" /* yacc.c:1646  */
-    {(yyval.type) = (yyvsp[0].type) + 2;}
-#line 1388 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 9:
-#line 110 "minipas.y" /* yacc.c:1646  */
-    {(yyval.type) = 265;}
-#line 1394 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 10:
 #line 111 "minipas.y" /* yacc.c:1646  */
-    {(yyval.type) = 266;}
-#line 1400 "minipas.tab.c" /* yacc.c:1646  */
+    {(yyval.type) = (yyvsp[0].type) + 2;}
+#line 1391 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 121 "minipas.y" /* yacc.c:1646  */
-    {printf("new function start\n"); isGlobal = 0; free(localTable); localTable = initSymbolTable();}
-#line 1406 "minipas.tab.c" /* yacc.c:1646  */
+#line 125 "minipas.y" /* yacc.c:1646  */
+    {isGlobal = 0; free(localTable); localTable = initSymbolTable();}
+#line 1397 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 15:
+#line 125 "minipas.y" /* yacc.c:1646  */
+    {insertSymbol(localTable, (yyvsp[-4].strtabptr), (yyvsp[-1].type));}
+#line 1403 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 134 "minipas.y" /* yacc.c:1646  */
+    {insertSymbolsFromStack((yyvsp[0].type));}
+#line 1409 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 136 "minipas.y" /* yacc.c:1646  */
+    { insertSymbolsFromStack((yyvsp[0].type));}
+#line 1415 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 176 "minipas.y" /* yacc.c:1646  */
+#line 182 "minipas.y" /* yacc.c:1646  */
     {(yyval.type) = (yyvsp[0].type);}
-#line 1412 "minipas.tab.c" /* yacc.c:1646  */
+#line 1421 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 177 "minipas.y" /* yacc.c:1646  */
+#line 183 "minipas.y" /* yacc.c:1646  */
     {(yyval.type) = (yyvsp[-2].type) + (yyvsp[0].type);}
-#line 1418 "minipas.tab.c" /* yacc.c:1646  */
+#line 1427 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 178 "minipas.y" /* yacc.c:1646  */
+#line 184 "minipas.y" /* yacc.c:1646  */
     {(yyval.type) = (yyvsp[-2].type) - (yyvsp[0].type);}
-#line 1424 "minipas.tab.c" /* yacc.c:1646  */
+#line 1433 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 189 "minipas.y" /* yacc.c:1646  */
+#line 195 "minipas.y" /* yacc.c:1646  */
     {(yyval.type) = getType((yyvsp[0].strtabptr));}
-#line 1430 "minipas.tab.c" /* yacc.c:1646  */
+#line 1439 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 190 "minipas.y" /* yacc.c:1646  */
+#line 196 "minipas.y" /* yacc.c:1646  */
     {(yyval.type) = getType((yyvsp[-3].strtabptr));}
-#line 1436 "minipas.tab.c" /* yacc.c:1646  */
+#line 1445 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 191 "minipas.y" /* yacc.c:1646  */
+#line 197 "minipas.y" /* yacc.c:1646  */
     {(yyval.type) = (yyvsp[0].type);}
-#line 1442 "minipas.tab.c" /* yacc.c:1646  */
+#line 1451 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 192 "minipas.y" /* yacc.c:1646  */
+#line 198 "minipas.y" /* yacc.c:1646  */
     {(yyval.type) = (yyvsp[-1].type);}
-#line 1448 "minipas.tab.c" /* yacc.c:1646  */
+#line 1457 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1452 "minipas.tab.c" /* yacc.c:1646  */
+#line 1461 "minipas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1676,7 +1685,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 195 "minipas.y" /* yacc.c:1906  */
+#line 201 "minipas.y" /* yacc.c:1906  */
 
 
 int main(int argc, char *argv[]) {
