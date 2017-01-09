@@ -8,6 +8,9 @@
 bucket* globalTable; 
 bucket* localTable;
 int isGlobal; //0 if it aint global else 1
+int currentType = 0;
+char** identifierList;
+
 int yyerror (char *msg) {
   showLine();
   fprintf (stderr, "%s (token=%s)\n", msg, yytext);
@@ -19,28 +22,25 @@ int getType(char *strtabEntry){ //Returns the type of an variable, does also che
 
   printf("%s is our string\n", strtabEntry);
 
-/*  if(lookupStringTable(strtabEntry) == NULL){
+ if(lookupStringTable(strtabEntry) == NULL){
     printf("variable not delcared\n");
     exit(-1);
   }
-  */
-  
-  int typeLocal = *((int *) lookupSymbol(localTable, strtabEntry));
+  int typeLocal = lookupSymbol(localTable, strtabEntry);
   printf("debug typelocal: %d\n", typeLocal);
-  printf("debug lookupSymbol: %d\n", lookupSymbol(localTable, strtabEntry));
   if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
-    if (*((int *) lookupSymbol(globalTable, strtabEntry)) == 0){
+    if (lookupSymbol(globalTable, strtabEntry) == 0){
       printf("variable not declared or not accesible\n");
       exit(-1);
     }
-    return *((int *) lookupSymbol(globalTable, strtabEntry));
+    return lookupSymbol(globalTable, strtabEntry);
   }
   return typeLocal; 
 }
 
 void checkDoubleDeclaration(char *strtabEntry){
-    if (*((int *) lookupSymbol(localTable, strtabEntry)) == 0){
-     if (*((int *) lookupSymbol(globalTable, strtabEntry)) == 0){
+    if (lookupSymbol(localTable, strtabEntry) == 0){
+     if (lookupSymbol(globalTable, strtabEntry) == 0){
 	return; //everything is fine not declared before
       } 
     }
@@ -62,7 +62,7 @@ void checkDoubleDeclaration(char *strtabEntry){
        RELOP MULOP
 
        
-%type <type> NUMBER expression factor term simpleexpr
+%type <type> NUMBER expression factor term simpleexpr type standardtype
 %type <strtabptr> IDENTIFIER
        
 %%
@@ -75,41 +75,38 @@ program            : PROGRAM IDENTIFIER '(' identlist ')' ';'
                    ;
 
 identlist          : IDENTIFIER	
-		     { 
-		      if (isGlobal){
-			printf("isGlobal ");
-			printf("%s\n", yytext);
-			insertSymbol(globalTable, insertStringTable(yytext), 266); //TODO has to be a valid type not always REAL 
-		      }else{
-			printf("isLocal ");
-			printf("%s\n", yytext);
-			insertSymbol(localTable, insertStringTable(yytext), 266);
-		      }
-		     }
+					{ 
+						
+					}
                    | identlist ',' IDENTIFIER		     
                    { 
-		      if (isGlobal){
-			printf("isGlobal ");
-			printf("%s\n", yytext);
-			insertSymbol(globalTable, insertStringTable(yytext), 266); //TODO has to be a valid type not always REAL 
-		      }else{
-			printf("isLocal ");
-			printf("%s\n", yytext);
-			insertSymbol(localTable, insertStringTable(yytext), 266);
-		      }
-		     }
+					}
                    ;
 
-declarations       : declarations VAR identlist ':' type ';' //TODO add type here?
+declarations       : declarations VAR  identlist ':' type ';' 
+					{
+						for(identifier:identifierList){
+							  printf("typelocal: %d\n", currentType);
+							  if (isGlobal){
+								printf("isGlobal ");
+								printf("%s\n", yytext);
+								insertSymbol(globalTable, identifier, $5);
+							  }else{
+								printf("isLocal ");
+								printf("%s\n", yytext);
+								insertSymbol(localTable, identifier, $5);
+							  }
+						}
+					} //TODO add type here?
 	               | /* epsilon */
                    ;
 
 type               : standardtype
-                   | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype
+                   | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype {$$ = $8 + 2;} // 265 = int 267 = int[], 266 = real 268 = real[]
                    ;
 
-standardtype       : INTEGER
-                   | REAL
+standardtype       : INTEGER {$$ = 265;}
+                   | REAL {$$ = 266;}
                    ;
 
 subprogdecls       : subprogdecls subprogdecl ';'

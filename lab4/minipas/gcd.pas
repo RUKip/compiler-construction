@@ -9,7 +9,7 @@ var z,y : integer;
 
 FUNCTION gcd_recursive(u, v : integer) : integer;
 BEGIN
-  IF u mod v <> 0 THEN
+  IF u mod y <> 0 THEN
     gcd_recursive := gcd_recursive(v, u mod v)
   ELSE
     gcd_recursive := v
