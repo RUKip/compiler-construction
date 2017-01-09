@@ -65,7 +65,9 @@ extern int yydebug;
     WHILE = 275,
     DO = 276,
     RELOP = 277,
-    MULOP = 278
+    MULOP = 278,
+    READLN = 279,
+    WRITELN = 280
   };
 #endif
 
@@ -74,12 +76,12 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 70 "minipas.y" /* yacc.c:1909  */
+#line 77 "minipas.y" /* yacc.c:1909  */
 
   int type;
   char *strtabptr;
 
-#line 83 "minipas.tab.h" /* yacc.c:1909  */
+#line 85 "minipas.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

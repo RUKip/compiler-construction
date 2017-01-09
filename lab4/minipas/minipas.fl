@@ -43,6 +43,8 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 [Ee][Ll][Ss][Ee]                     { eat(); return ELSE; }
 [Ww][Hh][Ii][Ll][Ee]                 { eat(); return WHILE; }
 [Dd][Oo]                             { eat(); return DO; }
+writeln			             { eat(); return WRITELN; }
+readln			             { eat(); return READLN; }
 
 "."                           { eat(); return '.';    }
 "("                           { eat(); return '(';    }

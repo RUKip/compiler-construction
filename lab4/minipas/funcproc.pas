@@ -2,6 +2,7 @@ PROGRAM fp (input, output);
 
 procedure procwithoutpars;
 var x : integer;
+
 BEGIN
    x := 42
 END;
@@ -15,7 +16,7 @@ BEGIN
 END;
 
 
-function identity(x : integer) : integer;
+function identity(x : real) : integer;
 BEGIN
    identity := x
 END;

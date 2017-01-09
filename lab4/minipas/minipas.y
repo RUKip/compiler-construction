@@ -18,10 +18,10 @@ int yyerror (char *msg) {
 
 int getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in the scope
 
-  printf("%s is our string\n", strtabEntry);
+  printf("%s is our string\n", strtabEntry); //debug
 
   int typeLocal = lookupSymbol(localTable, strtabEntry);
-  printf("debug typelocal: %d\n", typeLocal);
+  printf("debug typelocal: %d\n", typeLocal); //debug
   if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
     if (lookupSymbol(globalTable, strtabEntry) == 0){
       printf("%s not declared or not accesible\n", strtabEntry);
@@ -32,13 +32,23 @@ int getType(char *strtabEntry){ //Returns the type of an variable, does also che
   return typeLocal; 
 }
 
-void checkDoubleDeclaration(char *strtabEntry){
-    if (lookupSymbol(localTable, strtabEntry) == 0){
-     if (lookupSymbol(globalTable, strtabEntry) == 0){
+void checkDoubleDeclaration(char *strtabEntry, bucket* table){ //does what it says
+    if (lookupSymbol(table, strtabEntry) == 0){
 	return; //everything is fine not declared before
-      } 
+    } 
+    printf("already declared, double declaration %s \n", strtabEntry);
+    exit(-1);
+}
+
+void checkEqual(int type1, int type2){ //check type function/assignment (real/int is accepted)
+    printf("test of %d with type %d\n", type1, type2); //debug
+    if(type1 == type2){
+      return;
     }
-    printf("already declared double declaration\n");
+    if((265 == type2|| type2 == 266) && (265 == type1 || type1 == 266)){
+      return;
+    }
+    printf("type mismatch of %d with type %d\n", type1, type2);
     exit(-1);
 }
 
@@ -47,11 +57,13 @@ void insertSymbolsFromStack(int type) {
 	  if (isGlobal) {
 		  while(!isEmpty()) {
 			char* ident = pop();
+			checkDoubleDeclaration(ident, globalTable);
 			insertSymbol(globalTable, ident, type);
 		  }
 	  } else {
 		  while(!isEmpty()) {
 			char* ident = pop();
+			checkDoubleDeclaration(ident, localTable);
 			insertSymbol(localTable, ident, type);
 		  }
 	  }
@@ -60,7 +72,7 @@ void insertSymbolsFromStack(int type) {
 
 %}
 
-//TODO should check: types at calculations/assignments, availablity and initialization of variables, number of arguments in funcion call, type of arguments in funtion call, double declarations(check global and local), function return type.
+//TODO should check: number of arguments in funcion call, type of arguments in funtion call, unused variable, not a void value in the readln/writeln arguments.
 
 %union {
   int type;
@@ -69,11 +81,11 @@ void insertSymbolsFromStack(int type) {
 
 %token PROGRAM IDENTIFIER VAR ARRAY RANGE NUMBER OF INTEGER REAL
        FUNCTION PROCEDURE BEGINTOK ENDTOK ASSIGN IF THEN ELSE WHILE DO
-       RELOP MULOP
+       RELOP MULOP READLN WRITELN
 
        
 %type <type> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL
-%type <strtabptr> IDENTIFIER
+%type <strtabptr> IDENTIFIER variable
        
 %%
 
@@ -117,8 +129,8 @@ subprogdecls       : subprogdecls subprogdecl ';'
 subprogdecl        : subprogheading declarations compoundstatement
                    ;
 
-subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ':' standardtype ';' {insertSymbol(localTable, $3, $6);}
-                   | PROCEDURE IDENTIFIER arguments ';'
+subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ':' standardtype ';' {checkDoubleDeclaration($3, localTable); insertSymbol(localTable, $3, $6); checkDoubleDeclaration($3, globalTable); insertSymbol(globalTable, $3, $6);}
+                   | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ';' {checkDoubleDeclaration($3, globalTable); insertSymbol(globalTable, $3, -1);}	//-1 is our void value for procedures
                    ;
 
 arguments          : '(' paramlist ')'
@@ -128,7 +140,7 @@ arguments          : '(' paramlist ')'
 paramlist          : identlist ':' type
 					{insertSymbolsFromStack($3);}
                    | paramlist ';' identlist ':' type
-                   { insertSymbolsFromStack($5);}
+					{ insertSymbolsFromStack($5);}
                    ;
 
 compoundstatement  : BEGINTOK optionalstatements ENDTOK
@@ -142,13 +154,7 @@ statementlist      : statement
                    | statementlist ';' statement
                    ;
 
-statement          : variable ASSIGN expression 
-		      /*{
-			if(!(getType($1) == $3)){
-			  printf("type mismatch\n");
-			  exit(-1);
-			};
-		      }*/
+statement          : variable ASSIGN expression {checkEqual(getType($1),$3);} 
                    | procstatement
                    | compoundstatement
                    | IF boolexpression THEN statement ELSE statement
@@ -160,24 +166,26 @@ variable           : IDENTIFIER
                    ;
 
 procstatement      : IDENTIFIER
-                   | IDENTIFIER '(' exprlist ')'
+                   | IDENTIFIER '(' exprlist ')'	{getType($1); checkArguments($1); free(arguments);} //TODO fix this and below
+                   | WRITELN '(' exprlist ')' 		//nothing has to happen except writln
+                   | READLN '(' exprlist ')'		//nothing has to happen except readln
                    ;
 
-exprlist           : expression
-                   | exprlist ',' expression
+exprlist           : expression				{initialize(arguments); addTypeToArguments($3);}
+                   | exprlist ',' expression		{addTypeToArguments($3);}
                    ;
 
-boolexpression	   : simpleexpr RELOP simpleexpr
-				   ;
+boolexpression	   : simpleexpr RELOP simpleexpr {checkEqual($1,$3);}
+		   ;
                    
 expression         : simpleexpr	
-				   | boolexpression
+		   | boolexpression
                    ;
 
 simpleexpr         : term
                    | sign term				{$$ = $2;}
-                   | simpleexpr '+' term 	{}//typecheck
-                   | simpleexpr '-' term	{}//typecheck
+                   | simpleexpr '+' term 	{checkEqual($1,$3);}
+                   | simpleexpr '-' term	{checkEqual($1,$3);}
                    ;
 
 sign               : '+'
@@ -185,13 +193,13 @@ sign               : '+'
                    ;
 
 term               : factor
-                   | term MULOP factor
+                   | term MULOP factor {checkEqual($1,$3);}
                    ;
 
 factor             : IDENTIFIER 					{$$ = getType($1);}
-                   | IDENTIFIER '(' exprlist ')' 	{$$ = getType($1);}
-                   | NUMBER							{$$ = $1;}
-                   | '(' expression ')'				{$$ = $2;}
+                   | IDENTIFIER '(' exprlist ')' 			{$$ = getType($1);}
+                   | NUMBER						{$$ = $1;}
+                   | '(' expression ')'					{$$ = $2;}
                    ;
 
 %%
@@ -202,10 +210,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
   
-  //newstuff probably remove and ofcourse underlying function
   initializeStringTable(argv[1]);
-  //endnewstuff
-  
   initLexer(argv[1]);
   isGlobal = 1;
   globalTable = initSymbolTable();
@@ -223,18 +228,10 @@ int main(int argc, char *argv[]) {
     }
   }
   printf("sum: %d\n", sum);
-  
+
   
   freeStringTable();
   finalizeLexer();
-
-  
-  //more debug
-  if(globalTable[0] == NULL){
-    printf("isNull globalTable\n");
-  }else{
-    printf("first element: %s\n", globalTable[0]->key);
-  }
   free(globalTable);
   free(localTable);
   
