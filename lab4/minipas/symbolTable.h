@@ -9,8 +9,11 @@ typedef struct bucket {
 
 bucket* initSymbolTable();
 void freeSymbolTable(bucket* hashtab);
-void *lookupSymbol(bucket* hashtab, char *strtabEntry);
-void insertSymbol(bucket* hashtab, char *strtabEntry, int type);
+int lookupSymbol(bucket* hashtab, char *strtabEntry);
+int isFunction(bucket* hashtab, char *strtabEntry);
+void addArguments(bucket* hashtab, char *strtabEntry, int* arg, int size);
+void insertSymbol(bucket* hashtab, char *strtabEntry, int type, int isFunction);
+void checkArguments(bucket* hashtab, char *strtabEntry, int* arg, int size);
 void removeSymbol(bucket* hashtab, char *strtabEntry);
 
 #endif

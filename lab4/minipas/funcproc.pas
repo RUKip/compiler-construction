@@ -23,6 +23,6 @@ END;
 
 BEGIN
    procwithoutpars;
-   procwithpars (4,2);
+   procwithpars (4,3);
    writeln(identity(42))
 END.

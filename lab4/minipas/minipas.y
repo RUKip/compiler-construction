@@ -16,12 +16,17 @@ int yyerror (char *msg) {
   exit(EXIT_FAILURE);
 }
 
+/* typelist:
+ * int 			265
+ * real 		266
+ * int[]		267
+ * real[]		268 
+ * void			-1
+ */
+
 int getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in the scope
 
-  printf("%s is our string\n", strtabEntry); //debug
-
   int typeLocal = lookupSymbol(localTable, strtabEntry);
-  printf("debug typelocal: %d\n", typeLocal); //debug
   if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
     if (lookupSymbol(globalTable, strtabEntry) == 0){
       printf("%s not declared or not accesible\n", strtabEntry);
@@ -41,7 +46,6 @@ void checkDoubleDeclaration(char *strtabEntry, bucket* table){ //does what it sa
 }
 
 void checkEqual(int type1, int type2){ //check type function/assignment (real/int is accepted)
-    printf("test of %d with type %d\n", type1, type2); //debug
     if(type1 == type2){
       return;
     }
@@ -53,18 +57,58 @@ void checkEqual(int type1, int type2){ //check type function/assignment (real/in
 }
 
 void insertSymbolsFromStack(int type) {
-	  bucket* currentTable;
 	  if (isGlobal) {
 		  while(!isEmpty()) {
 			char* ident = pop();
 			checkDoubleDeclaration(ident, globalTable);
-			insertSymbol(globalTable, ident, type);
+			insertSymbol(globalTable, ident, type, 0);
 		  }
 	  } else {
 		  while(!isEmpty()) {
 			char* ident = pop();
 			checkDoubleDeclaration(ident, localTable);
-			insertSymbol(localTable, ident, type);
+			insertSymbol(localTable, ident, type, 0);
+		  }
+	  }
+	  freeStack();
+}
+
+
+int* arguments;
+int argSize, argIndex;
+
+void initArguments(){
+	argSize=10;
+	argIndex=0;
+	arguments = malloc(argSize*sizeof(int)); 
+}
+
+void addArg(int arg) {
+    if((argSize-1) == argIndex){
+        int* temp = malloc(argSize*2*sizeof(int));    
+        copy(temp, arguments);
+        argSize *= 2;
+        free(arguments);
+        arguments = temp;    
+    } 
+    arguments[argIndex] = arg;
+    argIndex++;
+}
+
+void insertSymbolsAndArguments(int type){
+		  if (isGlobal) {
+		  while(!isEmpty()) {
+			char* ident = pop();
+			checkDoubleDeclaration(ident, globalTable);
+			insertSymbol(globalTable, ident, type, 0);
+			addArg(type);
+		  }
+	  } else {
+		  while(!isEmpty()) {
+			char* ident = pop();
+			checkDoubleDeclaration(ident, localTable);
+			insertSymbol(localTable, ident, type, 0);
+			addArg(type);
 		  }
 	  }
 	  freeStack();
@@ -84,7 +128,7 @@ void insertSymbolsFromStack(int type) {
        RELOP MULOP READLN WRITELN
 
        
-%type <type> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL
+%type <type> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL boolexpression
 %type <strtabptr> IDENTIFIER variable
        
 %%
@@ -129,8 +173,22 @@ subprogdecls       : subprogdecls subprogdecl ';'
 subprogdecl        : subprogheading declarations compoundstatement
                    ;
 
-subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ':' standardtype ';' {checkDoubleDeclaration($3, localTable); insertSymbol(localTable, $3, $6); checkDoubleDeclaration($3, globalTable); insertSymbol(globalTable, $3, $6);}
-                   | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable();} IDENTIFIER arguments ';' {checkDoubleDeclaration($3, globalTable); insertSymbol(globalTable, $3, -1);}	//-1 is our void value for procedures
+subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments();} IDENTIFIER arguments ':' standardtype ';' 
+						{
+							checkDoubleDeclaration($3, localTable); 
+							insertSymbol(localTable, $3, $6, 0); 
+							checkDoubleDeclaration($3, globalTable); 
+							insertSymbol(globalTable, $3, $6, 1); 
+							addArguments(globalTable,$3, arguments, argIndex); 
+							free(arguments);
+						}
+                   | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments();} IDENTIFIER arguments ';' 
+						{
+							checkDoubleDeclaration($3, globalTable); 
+							insertSymbol(globalTable, $3, -1, 1); 
+							addArguments(globalTable,$3, arguments, argIndex); 
+							free(arguments);
+						}
                    ;
 
 arguments          : '(' paramlist ')'
@@ -138,9 +196,9 @@ arguments          : '(' paramlist ')'
                    ;
 
 paramlist          : identlist ':' type
-					{insertSymbolsFromStack($3);}
+					{insertSymbolsAndArguments($3);}
                    | paramlist ';' identlist ':' type
-					{ insertSymbolsFromStack($5);}
+					{insertSymbolsAndArguments($5);}
                    ;
 
 compoundstatement  : BEGINTOK optionalstatements ENDTOK
@@ -166,26 +224,26 @@ variable           : IDENTIFIER
                    ;
 
 procstatement      : IDENTIFIER
-                   | IDENTIFIER '(' exprlist ')'	{getType($1); checkArguments($1); free(arguments);} //TODO fix this and below
-                   | WRITELN '(' exprlist ')' 		//nothing has to happen except writln
-                   | READLN '(' exprlist ')'		//nothing has to happen except readln
+                   | IDENTIFIER '(' exprlist ')'	{getType($1); if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);} checkArguments(globalTable, $1, arguments, argIndex); free(arguments);}
+                   | WRITELN '(' exprlist ')' 		{free(arguments);} //nothing has to happen except writln
+                   | READLN '(' exprlist ')'		{free(arguments);} //nothing has to happen except readln
                    ;
 
-exprlist           : expression				{initialize(arguments); addTypeToArguments($3);}
-                   | exprlist ',' expression		{addTypeToArguments($3);}
+exprlist           : expression					{initArguments(); addArg($1);}
+                   | exprlist ',' expression	{addArg($3);}
                    ;
 
 boolexpression	   : simpleexpr RELOP simpleexpr {checkEqual($1,$3);}
-		   ;
+				   ;
                    
 expression         : simpleexpr	
-		   | boolexpression
+		           | boolexpression
                    ;
 
 simpleexpr         : term
                    | sign term				{$$ = $2;}
-                   | simpleexpr '+' term 	{checkEqual($1,$3);}
-                   | simpleexpr '-' term	{checkEqual($1,$3);}
+                   | simpleexpr '+' term 	{$$ = $1; checkEqual($1,$3);}
+                   | simpleexpr '-' term	{$$ = $1; checkEqual($1,$3);}
                    ;
 
 sign               : '+'
@@ -193,13 +251,13 @@ sign               : '+'
                    ;
 
 term               : factor
-                   | term MULOP factor {checkEqual($1,$3);}
+                   | term MULOP factor {$$ = $1; checkEqual($1,$3);}
                    ;
 
 factor             : IDENTIFIER 					{$$ = getType($1);}
-                   | IDENTIFIER '(' exprlist ')' 			{$$ = getType($1);}
-                   | NUMBER						{$$ = $1;}
-                   | '(' expression ')'					{$$ = $2;}
+                   | IDENTIFIER '(' exprlist ')' 	{$$=getType($1); if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);} checkArguments(globalTable, $1, arguments, argIndex); free(arguments);}
+                   | NUMBER							{$$ = $1;}
+                   | '(' expression ')'				{$$ = $2;}
                    ;
 
 %%
@@ -215,21 +273,7 @@ int main(int argc, char *argv[]) {
   isGlobal = 1;
   globalTable = initSymbolTable();
   yyparse();
-  showStringTable();
-  
-  //debug
-    int i, sum = 0;
-  for(i=0; i<97; i++){
-    if(globalTable[i] == NULL){
-      sum++;
-    }else{
-      printf("element %d key: %s\n",i, globalTable[i]->key);
-      printf("element %d type: %d\n",i, globalTable[i]->type);
-    }
-  }
-  printf("sum: %d\n", sum);
 
-  
   freeStringTable();
   finalizeLexer();
   free(globalTable);

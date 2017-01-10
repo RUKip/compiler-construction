@@ -54,8 +54,8 @@ Grammar
 
    33 procstatement: IDENTIFIER
    34              | IDENTIFIER '(' exprlist ')'
-   35              | WRITELN '(' expression ')'
-   36              | READLN '(' expression ')'
+   35              | WRITELN '(' exprlist ')'
+   36              | READLN '(' exprlist ')'
 
    37 exprlist: expression
    38         | exprlist ',' expression
@@ -162,11 +162,11 @@ variable (53)
 procstatement (54)
     on left: 33 34 35 36, on right: 27
 exprlist (55)
-    on left: 37 38, on right: 34 38 51
+    on left: 37 38, on right: 34 35 36 38 51
 boolexpression (56)
     on left: 39, on right: 29 30 41
 expression (57)
-    on left: 40 41, on right: 26 32 35 36 37 38 53
+    on left: 40 41, on right: 26 32 37 38 53
 simpleexpr (58)
     on left: 42 43 44 45, on right: 39 40 44 45
 sign (59)
@@ -451,14 +451,14 @@ State 27
 
 State 28
 
-   36 procstatement: READLN . '(' expression ')'
+   36 procstatement: READLN . '(' exprlist ')'
 
     '('  shift, and go to state 59
 
 
 State 29
 
-   35 procstatement: WRITELN . '(' expression ')'
+   35 procstatement: WRITELN . '(' exprlist ')'
 
     '('  shift, and go to state 60
 
@@ -732,7 +732,7 @@ State 58
 
 State 59
 
-   36 procstatement: READLN '(' . expression ')'
+   36 procstatement: READLN '(' . exprlist ')'
 
     IDENTIFIER  shift, and go to state 48
     NUMBER      shift, and go to state 49
@@ -740,8 +740,9 @@ State 59
     '+'         shift, and go to state 51
     '-'         shift, and go to state 52
 
+    exprlist        go to state 84
     boolexpression  go to state 71
-    expression      go to state 84
+    expression      go to state 72
     simpleexpr      go to state 73
     sign            go to state 55
     term            go to state 56
@@ -750,7 +751,7 @@ State 59
 
 State 60
 
-   35 procstatement: WRITELN '(' . expression ')'
+   35 procstatement: WRITELN '(' . exprlist ')'
 
     IDENTIFIER  shift, and go to state 48
     NUMBER      shift, and go to state 49
@@ -758,8 +759,9 @@ State 60
     '+'         shift, and go to state 51
     '-'         shift, and go to state 52
 
+    exprlist        go to state 85
     boolexpression  go to state 71
-    expression      go to state 85
+    expression      go to state 72
     simpleexpr      go to state 73
     sign            go to state 55
     term            go to state 56
@@ -1020,16 +1022,20 @@ State 83
 
 State 84
 
-   36 procstatement: READLN '(' expression . ')'
+   36 procstatement: READLN '(' exprlist . ')'
+   38 exprlist: exprlist . ',' expression
 
     ')'  shift, and go to state 104
+    ','  shift, and go to state 94
 
 
 State 85
 
-   35 procstatement: WRITELN '(' expression . ')'
+   35 procstatement: WRITELN '(' exprlist . ')'
+   38 exprlist: exprlist . ',' expression
 
     ')'  shift, and go to state 105
+    ','  shift, and go to state 94
 
 
 State 86
@@ -1191,14 +1197,14 @@ State 103
 
 State 104
 
-   36 procstatement: READLN '(' expression ')' .
+   36 procstatement: READLN '(' exprlist ')' .
 
     $default  reduce using rule 36 (procstatement)
 
 
 State 105
 
-   35 procstatement: WRITELN '(' expression ')' .
+   35 procstatement: WRITELN '(' exprlist ')' .
 
     $default  reduce using rule 35 (procstatement)
 
