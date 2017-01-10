@@ -213,8 +213,8 @@ statementlist      : statement
 statement          : variable ASSIGN expression {checkEqual(getType($1),$3);} 
                    | procstatement
                    | compoundstatement
-                   | IF boolexpression THEN statement ELSE statement
-                   | WHILE boolexpression DO statement
+                   | IF expression THEN statement ELSE statement
+                   | WHILE expression DO statement
                    ;
 
 variable           : IDENTIFIER
