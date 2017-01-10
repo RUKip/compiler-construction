@@ -2,13 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TABSIZE 97   /* choose a small prime */
-
-//makeFile has symtab.c included in makefile to solve undifned refrences, might have errors if acting weird
+#define TABSIZE 97
 
 typedef struct bucket {
   char *key;   /* pointer to entry in the string table */
-  int type;  //265 is INT, 266 is REAL
+  int type;  
   struct bucket *next;
   int isFunction;
   int* arguments;
@@ -30,9 +28,11 @@ void freeSymbolTable(bucket* hashtab) {
     while (hashtab[i] != NULL) {
       bucket b = hashtab[i];
       hashtab[i] = hashtab[i]->next;
+	  if (b->isFunction) free(b->arguments);
       free(b);
     }
   }
+  free(hashtab);
 }
 
 static unsigned int hash(char *str) {

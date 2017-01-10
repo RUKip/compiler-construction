@@ -1,6 +1,4 @@
-/* symtab.c: very simple string table.
- * author: Arnold Meijster (a.meijster@rug.nl)
- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +7,6 @@ static unsigned tabsize, idx;
 char *strtab = NULL;
 
 void initializeStringTable(char* filename){
-  //new stuff
   FILE *f = fopen(filename, "r");
   int length;
   if (f == NULL) {
@@ -21,7 +18,6 @@ void initializeStringTable(char* filename){
   fseek (f, 0, SEEK_SET);
   strtab = malloc (length+1);
   fclose (f);
-  //end of new stuff
 }
 
 
@@ -31,7 +27,6 @@ static void resize(int sz) {
 	while (idx + sz >= tabsize) {
 	  tabsize *= 2;
 	}
-	//strtab = realloc(strtab, tabsize);
   }
 }
 

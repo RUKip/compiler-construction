@@ -116,8 +116,6 @@ void insertSymbolsAndArguments(int type){
 
 %}
 
-//TODO should check: number of arguments in funcion call, type of arguments in funtion call, unused variable, not a void value in the readln/writeln arguments.
-
 %union {
   int type;
   char *strtabptr;
@@ -133,7 +131,7 @@ void insertSymbolsAndArguments(int type){
        
 %%
 
-program            : PROGRAM IDENTIFIER '(' identlist ')' ';'
+program            : PROGRAM IDENTIFIER '(' identlist ')' ';' {freeStack();}
                      declarations
 	                 subprogdecls
 	                 compoundstatement
@@ -159,7 +157,7 @@ declarations       : declarations VAR  identlist ':' type ';'
                    ;
 
 type               : standardtype
-                   | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype {$$ = $8 + 2;} // 265 = int 267 = int[], 266 = real 268 = real[]
+                   | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype {$$ = $8 + 2;} 
                    ;
 
 standardtype       : INTEGER 
@@ -276,8 +274,8 @@ int main(int argc, char *argv[]) {
 
   freeStringTable();
   finalizeLexer();
-  free(globalTable);
-  free(localTable);
+  freeSymbolTable(globalTable);
+  freeSymbolTable(localTable);
   
   
   return EXIT_SUCCESS;
