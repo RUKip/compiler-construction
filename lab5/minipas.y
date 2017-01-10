@@ -116,6 +116,8 @@ void insertSymbolsAndArguments(int type){
 
 %}
 
+%start program, pass1
+
 %union {
   int type;
   char *strtabptr;
@@ -234,7 +236,7 @@ exprlist           : expression					{initArguments(); addArg($1);}
 boolexpression	   : simpleexpr RELOP simpleexpr {checkEqual($1,$3);}
 				   ;
                    
-expression         : simpleexpr	
+expressioprefixn         : simpleexpr	
 		           | boolexpression
                    ;
 
@@ -271,7 +273,10 @@ int main(int argc, char *argv[]) {
   isGlobal = 1;
   globalTable = initSymbolTable();
   yyparse();
-
+  cparse();
+  //https://www.gnu.org/software/bison/manual/html_node/Multiple-Parsers.html ??
+  //minipas.tab.h includen voor elke minpas.y (deze main in een aparte file en dan aanroepen)
+  
   freeStringTable();
   finalizeLexer();
   freeSymbolTable(globalTable);

@@ -11,6 +11,8 @@ int yyerror (char *msg) {
 
 %}
 
+%define api.prefix {c}
+
 %token PROGRAM IDENTIFIER VAR ARRAY RANGE NUMBER OF INTEGER REAL
        FUNCTION PROCEDURE BEGINTOK ENDTOK ASSIGN IF THEN ELSE WHILE DO
        RELOP MULOP NOT
@@ -115,14 +117,3 @@ factor             : IDENTIFIER
                    ;
 
 %%
-
-int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <pasfile>\n", argv[0]);
-    return EXIT_FAILURE;
-  }
-  initLexer(argv[1]);
-  yyparse();
-  finalizeLexer();
-  return EXIT_SUCCESS;
-}
