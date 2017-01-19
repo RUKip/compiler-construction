@@ -133,7 +133,7 @@ void insertSymbolsAndArguments(int type){
        
 %%
 
-program            : PROGRAM IDENTIFIER '(' identlist ')' ';' {freeStack();}
+program            : PROGRAM IDENTIFIER '(' identlist ')' ';' {freeStack();} //make main here??
                      declarations
 	                 subprogdecls
 	                 compoundstatement
@@ -272,11 +272,7 @@ int main(int argc, char *argv[]) {
   initLexer(argv[1]);
   isGlobal = 1;
   globalTable = initSymbolTable();
-  yyparse();
-  cparse();
-  //https://www.gnu.org/software/bison/manual/html_node/Multiple-Parsers.html ??
-  //minipas.tab.h includen voor elke minpas.y (deze main in een aparte file en dan aanroepen)
-  
+  yyparse();  
   freeStringTable();
   finalizeLexer();
   freeSymbolTable(globalTable);
