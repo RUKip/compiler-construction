@@ -17,6 +17,8 @@ int yyerror (char *msg) {
   exit(EXIT_FAILURE);
 }
 
+//Note: to help see the difference with our old code and new ouput code we used the /*cOutput*/ comment behind new code
+
 /* typelist:
  * int 			265
  * real 		266
@@ -106,7 +108,7 @@ void insertSymbolsAndArguments(int type){
 	
 	  while(!isEmpty()) {
 		char* ident = pop();
-		//place function argument here for c tranlsation
+		storeArgument(type, ident);//cOuput
 		checkDoubleDeclaration(ident, currentTable);
 		insertSymbol(currentTable, ident, type, 0);
 		addArg(type);
@@ -128,7 +130,7 @@ void insertSymbolsAndArguments(int type){
 
        
 %type <type> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL boolexpression
-%type <strtabptr> IDENTIFIER variable
+%type <strtabptr> IDENTIFIER variable sign
        
 %%
 
@@ -172,7 +174,7 @@ subprogdecls       : subprogdecls subprogdecl ';'
 subprogdecl        : subprogheading declarations compoundstatement
                    ;
 
-subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments();} IDENTIFIER arguments ':' standardtype ';' 
+subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/} IDENTIFIER arguments ':' standardtype ';' 
 						{
 							outputFunctionName($6, $3); //cOuput
 							checkDoubleDeclaration($3, localTable); 
@@ -182,9 +184,9 @@ subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = init
 							addArguments(globalTable,$3, arguments, argIndex); 
 							free(arguments);
 						}
-                   | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments();} IDENTIFIER arguments ';' 
+                   | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/} IDENTIFIER arguments ';' 
 						{
-							outputFunctionName($6, $3); //cOuput
+							outputFunctionName(-1, $3); //cOuput
 							checkDoubleDeclaration($3, globalTable); 
 							insertSymbol(globalTable, $3, -1, 1); 
 							addArguments(globalTable,$3, arguments, argIndex); 
@@ -230,35 +232,41 @@ procstatement      : IDENTIFIER
                    | READLN '(' exprlist ')'		{free(arguments);} //nothing has to happen except readln
                    ;
 
-exprlist           : expression					{initArguments(); addArg($1);}
-                   | exprlist ',' expression	{addArg($3);}
+exprlist           : expression					{initArguments(); addArg($1); initTempList(); storeToTempList();/*cOutput*/}
+                   | exprlist ',' expression	{addArg($3); storeToTempList();/*cOutput*/}
                    ;
 
 boolexpression	   : simpleexpr RELOP simpleexpr {checkEqual($1,$3);}
 				   ;
                    
 expression         : simpleexpr	
-		           | boolexpression
+		   | boolexpression
                    ;
 
 simpleexpr         : term
-                   | sign term				{$$ = $2;}
+                   | sign term			{$$ = $2; outputTempValue($2); outputString($1); outputLastTemp();/*cOutput*/ } 
                    | simpleexpr '+' term 	{$$ = $1; checkEqual($1,$3);}
                    | simpleexpr '-' term	{$$ = $1; checkEqual($1,$3);}
                    ;
 
-sign               : '+'
-                   | '-'
+sign               : '+' 
+                   | '-' 
                    ;
 
 term               : factor
-                   | term MULOP factor {$$ = $1; checkEqual($1,$3);}
+                   | term MULOP {/*outputTempValue($1); x1 = getLastTemp(); outputLastTemp(); y1 = yytext; outputString(yytext);*/ /*cOuput*/} factor {$$ = $1; checkEqual($1,$4); /*outputString("t%d ",x1); outputString(y1); outputEnd();*/ }//cOuput
                    ;
 
-factor             : IDENTIFIER 					{$$ = getType($1);}
-                   | IDENTIFIER '(' exprlist ')' 	{$$=getType($1); if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);} checkArguments(globalTable, $1, arguments, argIndex); free(arguments);}
-                   | NUMBER							{$$ = $1;}
-                   | '(' expression ')'				{$$ = $2;}
+factor             : IDENTIFIER 					{$$ = getType($1); outputTempValue(getType($1)); outputString($1); outputEnd();/* cOutput*/ }
+                   | IDENTIFIER '(' exprlist ')' 		{
+								$$=getType($1); 
+								if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);}
+								checkArguments(globalTable, $1, arguments, argIndex);
+								free(arguments);
+								outputTempValue(getType($1)); outputString($1); outputTempList(); outputEnd(); //cOutput
+								} 
+                   | NUMBER							{$$ = $1; outputTempValue($1); outputString(yytext); outputEnd();/*cOutput*/}
+                   | '(' expression ')'				{$$ = $2; outputTempValue($2); outputLastTemp(); outputEnd(); /*cOutput*/}
                    ;
 
 %%

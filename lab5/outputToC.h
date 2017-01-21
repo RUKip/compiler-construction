@@ -4,6 +4,6 @@
 void outputDeclaration(int type, char* name);
 void initializeOutput();
 void outputFunctionName(int type, char* name);
-void outputArgument();
+void storeArgument(int type, char* name);
 
 #endif

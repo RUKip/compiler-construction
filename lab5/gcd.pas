@@ -12,7 +12,8 @@ BEGIN
   IF u mod v <> 0 THEN
     gcd_recursive := gcd_recursive(v, u mod v)
   ELSE
-    gcd_recursive := v
+    a := (u + v);
+    gcd_recursive := +v
 END;
 
 { an iterative version }
