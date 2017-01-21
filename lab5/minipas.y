@@ -136,9 +136,9 @@ void insertSymbolsAndArguments(int type){
 
 program            : PROGRAM IDENTIFIER '(' identlist ')' ';' {freeStack();}
                      declarations
-	                 subprogdecls
+	                 subprogdecls	{outputMain();}//cOutput
 	                 compoundstatement
-	                 '.'
+	                 '.' {outputEndMain();}//cOutput
                    ;
 
 identlist          : IDENTIFIER	
@@ -171,7 +171,7 @@ subprogdecls       : subprogdecls subprogdecl ';'
                    | /* epsilon */
                    ;
 
-subprogdecl        : subprogheading declarations compoundstatement
+subprogdecl        : subprogheading declarations compoundstatement {outputString("}\n");}//cOutput
                    ;
 
 subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/} IDENTIFIER arguments ':' standardtype ';' 

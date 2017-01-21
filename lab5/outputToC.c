@@ -80,6 +80,7 @@ void outputArgument(int type, char* ident, int isLastElement){
 
 void outputFunctionName(int type, char* name){
 	currentFunction = name;
+	fprintf(f, "\n");
 	printType(type);
 	fprintf(f, "%s (", name);
 	int i;
@@ -150,6 +151,14 @@ void outputTempList(){
 	}
 	fprintf(f, ")");
 	free(tempList);
+}
+
+void outputMain(){
+	fprintf(f, "\nint main(void){\n");
+}
+
+void outputEndMain(){
+	fprintf(f, "return 0; \n }");
 }
 
 int getLastTemp(){

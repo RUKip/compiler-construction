@@ -4,126 +4,128 @@ Grammar
 
     1 $@1: %empty
 
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls compoundstatement '.'
+    2 $@2: %empty
 
-    3 identlist: IDENTIFIER
-    4          | identlist ',' IDENTIFIER
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls $@2 compoundstatement '.'
 
-    5 declarations: declarations VAR identlist ':' type ';'
-    6             | %empty
+    4 identlist: IDENTIFIER
+    5          | identlist ',' IDENTIFIER
 
-    7 type: standardtype
-    8     | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype
+    6 declarations: declarations VAR identlist ':' type ';'
+    7             | %empty
 
-    9 standardtype: INTEGER
-   10             | REAL
+    8 type: standardtype
+    9     | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype
 
-   11 subprogdecls: subprogdecls subprogdecl ';'
-   12             | %empty
+   10 standardtype: INTEGER
+   11             | REAL
 
-   13 subprogdecl: subprogheading declarations compoundstatement
+   12 subprogdecls: subprogdecls subprogdecl ';'
+   13             | %empty
 
-   14 $@2: %empty
+   14 subprogdecl: subprogheading declarations compoundstatement
 
-   15 subprogheading: FUNCTION $@2 IDENTIFIER arguments ':' standardtype ';'
+   15 $@3: %empty
 
-   16 $@3: %empty
+   16 subprogheading: FUNCTION $@3 IDENTIFIER arguments ':' standardtype ';'
 
-   17 subprogheading: PROCEDURE $@3 IDENTIFIER arguments ';'
+   17 $@4: %empty
 
-   18 arguments: '(' paramlist ')'
-   19          | %empty
+   18 subprogheading: PROCEDURE $@4 IDENTIFIER arguments ';'
 
-   20 paramlist: identlist ':' type
-   21          | paramlist ';' identlist ':' type
+   19 arguments: '(' paramlist ')'
+   20          | %empty
 
-   22 compoundstatement: BEGINTOK optionalstatements ENDTOK
+   21 paramlist: identlist ':' type
+   22          | paramlist ';' identlist ':' type
 
-   23 optionalstatements: statementlist
-   24                   | %empty
+   23 compoundstatement: BEGINTOK optionalstatements ENDTOK
 
-   25 statementlist: statement
-   26              | statementlist ';' statement
+   24 optionalstatements: statementlist
+   25                   | %empty
 
-   27 statement: variable ASSIGN expression
-   28          | procstatement
-   29          | compoundstatement
-   30          | IF expression THEN statement ELSE statement
-   31          | WHILE expression DO statement
+   26 statementlist: statement
+   27              | statementlist ';' statement
 
-   32 variable: IDENTIFIER
-   33         | IDENTIFIER '[' expression ']'
+   28 statement: variable ASSIGN expression
+   29          | procstatement
+   30          | compoundstatement
+   31          | IF expression THEN statement ELSE statement
+   32          | WHILE expression DO statement
 
-   34 procstatement: IDENTIFIER
-   35              | IDENTIFIER '(' exprlist ')'
-   36              | WRITELN '(' exprlist ')'
-   37              | READLN '(' exprlist ')'
+   33 variable: IDENTIFIER
+   34         | IDENTIFIER '[' expression ']'
 
-   38 exprlist: expression
-   39         | exprlist ',' expression
+   35 procstatement: IDENTIFIER
+   36              | IDENTIFIER '(' exprlist ')'
+   37              | WRITELN '(' exprlist ')'
+   38              | READLN '(' exprlist ')'
 
-   40 boolexpression: simpleexpr RELOP simpleexpr
+   39 exprlist: expression
+   40         | exprlist ',' expression
 
-   41 expression: simpleexpr
-   42           | boolexpression
+   41 boolexpression: simpleexpr RELOP simpleexpr
 
-   43 simpleexpr: term
-   44           | sign term
-   45           | simpleexpr '+' term
-   46           | simpleexpr '-' term
+   42 expression: simpleexpr
+   43           | boolexpression
 
-   47 sign: '+'
-   48     | '-'
+   44 simpleexpr: term
+   45           | sign term
+   46           | simpleexpr '+' term
+   47           | simpleexpr '-' term
 
-   49 term: factor
+   48 sign: '+'
+   49     | '-'
 
-   50 $@4: %empty
+   50 term: factor
 
-   51 term: term MULOP $@4 factor
+   51 $@5: %empty
 
-   52 factor: IDENTIFIER
-   53       | IDENTIFIER '(' exprlist ')'
-   54       | NUMBER
-   55       | '(' expression ')'
+   52 term: term MULOP $@5 factor
+
+   53 factor: IDENTIFIER
+   54       | IDENTIFIER '(' exprlist ')'
+   55       | NUMBER
+   56       | '(' expression ')'
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'(' (40) 2 18 35 36 37 53 55
-')' (41) 2 18 35 36 37 53 55
-'+' (43) 45 47
-',' (44) 4 39
-'-' (45) 46 48
-'.' (46) 2
-':' (58) 5 15 20 21
-';' (59) 2 5 11 15 17 21 26
-'[' (91) 8 33
-']' (93) 8 33
+'(' (40) 3 19 36 37 38 54 56
+')' (41) 3 19 36 37 38 54 56
+'+' (43) 46 48
+',' (44) 5 40
+'-' (45) 47 49
+'.' (46) 3
+':' (58) 6 16 21 22
+';' (59) 3 6 12 16 18 22 27
+'[' (91) 9 34
+']' (93) 9 34
 error (256)
-PROGRAM (258) 2
-IDENTIFIER (259) 2 3 4 15 17 32 33 34 35 52 53
-VAR (260) 5
-ARRAY (261) 8
-RANGE (262) 8
-NUMBER (263) 8 54
-OF (264) 8
-INTEGER (265) 9
-REAL (266) 10
-FUNCTION (267) 15
-PROCEDURE (268) 17
-BEGINTOK (269) 22
-ENDTOK (270) 22
-ASSIGN (271) 27
-IF (272) 30
-THEN (273) 30
-ELSE (274) 30
-WHILE (275) 31
-DO (276) 31
-RELOP (277) 40
-MULOP (278) 51
-READLN (279) 37
-WRITELN (280) 36
+PROGRAM (258) 3
+IDENTIFIER (259) 3 4 5 16 18 33 34 35 36 53 54
+VAR (260) 6
+ARRAY (261) 9
+RANGE (262) 9
+NUMBER (263) 9 55
+OF (264) 9
+INTEGER (265) 10
+REAL (266) 11
+FUNCTION (267) 16
+PROCEDURE (268) 18
+BEGINTOK (269) 23
+ENDTOK (270) 23
+ASSIGN (271) 28
+IF (272) 31
+THEN (273) 31
+ELSE (274) 31
+WHILE (275) 32
+DO (276) 32
+RELOP (277) 41
+MULOP (278) 52
+READLN (279) 38
+WRITELN (280) 37
 
 
 Nonterminals, with rules where they appear
@@ -131,59 +133,61 @@ Nonterminals, with rules where they appear
 $accept (36)
     on left: 0
 program (37)
-    on left: 2, on right: 0
+    on left: 3, on right: 0
 $@1 (38)
-    on left: 1, on right: 2
-identlist (39)
-    on left: 3 4, on right: 2 4 5 20 21
-declarations (40)
-    on left: 5 6, on right: 2 5 13
-type (41)
-    on left: 7 8, on right: 5 20 21
-standardtype (42)
-    on left: 9 10, on right: 7 8 15
-subprogdecls (43)
-    on left: 11 12, on right: 2 11
-subprogdecl (44)
-    on left: 13, on right: 11
-subprogheading (45)
-    on left: 15 17, on right: 13
-$@2 (46)
-    on left: 14, on right: 15
+    on left: 1, on right: 3
+$@2 (39)
+    on left: 2, on right: 3
+identlist (40)
+    on left: 4 5, on right: 3 5 6 21 22
+declarations (41)
+    on left: 6 7, on right: 3 6 14
+type (42)
+    on left: 8 9, on right: 6 21 22
+standardtype (43)
+    on left: 10 11, on right: 8 9 16
+subprogdecls (44)
+    on left: 12 13, on right: 3 12
+subprogdecl (45)
+    on left: 14, on right: 12
+subprogheading (46)
+    on left: 16 18, on right: 14
 $@3 (47)
-    on left: 16, on right: 17
-arguments (48)
-    on left: 18 19, on right: 15 17
-paramlist (49)
-    on left: 20 21, on right: 18 21
-compoundstatement (50)
-    on left: 22, on right: 2 13 29
-optionalstatements (51)
-    on left: 23 24, on right: 22
-statementlist (52)
-    on left: 25 26, on right: 23 26
-statement (53)
-    on left: 27 28 29 30 31, on right: 25 26 30 31
-variable (54)
-    on left: 32 33, on right: 27
-procstatement (55)
-    on left: 34 35 36 37, on right: 28
-exprlist (56)
-    on left: 38 39, on right: 35 36 37 39 53
-boolexpression (57)
-    on left: 40, on right: 42
-expression (58)
-    on left: 41 42, on right: 27 30 31 33 38 39 55
-simpleexpr (59)
-    on left: 43 44 45 46, on right: 40 41 45 46
-sign (60)
-    on left: 47 48, on right: 44
-term (61)
-    on left: 49 51, on right: 43 44 45 46 51
-$@4 (62)
-    on left: 50, on right: 51
-factor (63)
-    on left: 52 53 54 55, on right: 49 51
+    on left: 15, on right: 16
+$@4 (48)
+    on left: 17, on right: 18
+arguments (49)
+    on left: 19 20, on right: 16 18
+paramlist (50)
+    on left: 21 22, on right: 19 22
+compoundstatement (51)
+    on left: 23, on right: 3 14 30
+optionalstatements (52)
+    on left: 24 25, on right: 23
+statementlist (53)
+    on left: 26 27, on right: 24 27
+statement (54)
+    on left: 28 29 30 31 32, on right: 26 27 31 32
+variable (55)
+    on left: 33 34, on right: 28
+procstatement (56)
+    on left: 35 36 37 38, on right: 29
+exprlist (57)
+    on left: 39 40, on right: 36 37 38 40 54
+boolexpression (58)
+    on left: 41, on right: 43
+expression (59)
+    on left: 42 43, on right: 28 31 32 34 39 40 56
+simpleexpr (60)
+    on left: 44 45 46 47, on right: 41 42 46 47
+sign (61)
+    on left: 48 49, on right: 45
+term (62)
+    on left: 50 52, on right: 44 45 46 47 52
+$@5 (63)
+    on left: 51, on right: 52
+factor (64)
+    on left: 53 54 55 56, on right: 50 52
 
 
 State 0
@@ -197,7 +201,7 @@ State 0
 
 State 1
 
-    2 program: PROGRAM . IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls compoundstatement '.'
+    3 program: PROGRAM . IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls $@2 compoundstatement '.'
 
     IDENTIFIER  shift, and go to state 3
 
@@ -211,7 +215,7 @@ State 2
 
 State 3
 
-    2 program: PROGRAM IDENTIFIER . '(' identlist ')' ';' $@1 declarations subprogdecls compoundstatement '.'
+    3 program: PROGRAM IDENTIFIER . '(' identlist ')' ';' $@1 declarations subprogdecls $@2 compoundstatement '.'
 
     '('  shift, and go to state 5
 
@@ -225,7 +229,7 @@ State 4
 
 State 5
 
-    2 program: PROGRAM IDENTIFIER '(' . identlist ')' ';' $@1 declarations subprogdecls compoundstatement '.'
+    3 program: PROGRAM IDENTIFIER '(' . identlist ')' ';' $@1 declarations subprogdecls $@2 compoundstatement '.'
 
     IDENTIFIER  shift, and go to state 6
 
@@ -234,15 +238,15 @@ State 5
 
 State 6
 
-    3 identlist: IDENTIFIER .
+    4 identlist: IDENTIFIER .
 
-    $default  reduce using rule 3 (identlist)
+    $default  reduce using rule 4 (identlist)
 
 
 State 7
 
-    2 program: PROGRAM IDENTIFIER '(' identlist . ')' ';' $@1 declarations subprogdecls compoundstatement '.'
-    4 identlist: identlist . ',' IDENTIFIER
+    3 program: PROGRAM IDENTIFIER '(' identlist . ')' ';' $@1 declarations subprogdecls $@2 compoundstatement '.'
+    5 identlist: identlist . ',' IDENTIFIER
 
     ')'  shift, and go to state 8
     ','  shift, and go to state 9
@@ -250,21 +254,21 @@ State 7
 
 State 8
 
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' . ';' $@1 declarations subprogdecls compoundstatement '.'
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' . ';' $@1 declarations subprogdecls $@2 compoundstatement '.'
 
     ';'  shift, and go to state 10
 
 
 State 9
 
-    4 identlist: identlist ',' . IDENTIFIER
+    5 identlist: identlist ',' . IDENTIFIER
 
     IDENTIFIER  shift, and go to state 11
 
 
 State 10
 
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' ';' . $@1 declarations subprogdecls compoundstatement '.'
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' . $@1 declarations subprogdecls $@2 compoundstatement '.'
 
     $default  reduce using rule 1 ($@1)
 
@@ -273,35 +277,35 @@ State 10
 
 State 11
 
-    4 identlist: identlist ',' IDENTIFIER .
+    5 identlist: identlist ',' IDENTIFIER .
 
-    $default  reduce using rule 4 (identlist)
+    $default  reduce using rule 5 (identlist)
 
 
 State 12
 
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 . declarations subprogdecls compoundstatement '.'
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 . declarations subprogdecls $@2 compoundstatement '.'
 
-    $default  reduce using rule 6 (declarations)
+    $default  reduce using rule 7 (declarations)
 
     declarations  go to state 13
 
 
 State 13
 
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations . subprogdecls compoundstatement '.'
-    5 declarations: declarations . VAR identlist ':' type ';'
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations . subprogdecls $@2 compoundstatement '.'
+    6 declarations: declarations . VAR identlist ':' type ';'
 
     VAR  shift, and go to state 14
 
-    $default  reduce using rule 12 (subprogdecls)
+    $default  reduce using rule 13 (subprogdecls)
 
     subprogdecls  go to state 15
 
 
 State 14
 
-    5 declarations: declarations VAR . identlist ':' type ';'
+    6 declarations: declarations VAR . identlist ':' type ';'
 
     IDENTIFIER  shift, and go to state 6
 
@@ -310,1071 +314,1081 @@ State 14
 
 State 15
 
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls . compoundstatement '.'
-   11 subprogdecls: subprogdecls . subprogdecl ';'
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls . $@2 compoundstatement '.'
+   12 subprogdecls: subprogdecls . subprogdecl ';'
 
     FUNCTION   shift, and go to state 17
     PROCEDURE  shift, and go to state 18
-    BEGINTOK   shift, and go to state 19
 
-    subprogdecl        go to state 20
-    subprogheading     go to state 21
-    compoundstatement  go to state 22
+    $default  reduce using rule 2 ($@2)
+
+    $@2             go to state 19
+    subprogdecl     go to state 20
+    subprogheading  go to state 21
 
 
 State 16
 
-    4 identlist: identlist . ',' IDENTIFIER
-    5 declarations: declarations VAR identlist . ':' type ';'
+    5 identlist: identlist . ',' IDENTIFIER
+    6 declarations: declarations VAR identlist . ':' type ';'
 
     ','  shift, and go to state 9
-    ':'  shift, and go to state 23
+    ':'  shift, and go to state 22
 
 
 State 17
 
-   15 subprogheading: FUNCTION . $@2 IDENTIFIER arguments ':' standardtype ';'
+   16 subprogheading: FUNCTION . $@3 IDENTIFIER arguments ':' standardtype ';'
 
-    $default  reduce using rule 14 ($@2)
+    $default  reduce using rule 15 ($@3)
 
-    $@2  go to state 24
+    $@3  go to state 23
 
 
 State 18
 
-   17 subprogheading: PROCEDURE . $@3 IDENTIFIER arguments ';'
+   18 subprogheading: PROCEDURE . $@4 IDENTIFIER arguments ';'
 
-    $default  reduce using rule 16 ($@3)
+    $default  reduce using rule 17 ($@4)
 
-    $@3  go to state 25
+    $@4  go to state 24
 
 
 State 19
 
-   22 compoundstatement: BEGINTOK . optionalstatements ENDTOK
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls $@2 . compoundstatement '.'
 
-    IDENTIFIER  shift, and go to state 26
-    BEGINTOK    shift, and go to state 19
-    IF          shift, and go to state 27
-    WHILE       shift, and go to state 28
-    READLN      shift, and go to state 29
-    WRITELN     shift, and go to state 30
+    BEGINTOK  shift, and go to state 25
 
-    $default  reduce using rule 24 (optionalstatements)
-
-    compoundstatement   go to state 31
-    optionalstatements  go to state 32
-    statementlist       go to state 33
-    statement           go to state 34
-    variable            go to state 35
-    procstatement       go to state 36
+    compoundstatement  go to state 26
 
 
 State 20
 
-   11 subprogdecls: subprogdecls subprogdecl . ';'
+   12 subprogdecls: subprogdecls subprogdecl . ';'
 
-    ';'  shift, and go to state 37
+    ';'  shift, and go to state 27
 
 
 State 21
 
-   13 subprogdecl: subprogheading . declarations compoundstatement
+   14 subprogdecl: subprogheading . declarations compoundstatement
 
-    $default  reduce using rule 6 (declarations)
+    $default  reduce using rule 7 (declarations)
 
-    declarations  go to state 38
+    declarations  go to state 28
 
 
 State 22
 
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls compoundstatement . '.'
+    6 declarations: declarations VAR identlist ':' . type ';'
 
-    '.'  shift, and go to state 39
+    ARRAY    shift, and go to state 29
+    INTEGER  shift, and go to state 30
+    REAL     shift, and go to state 31
+
+    type          go to state 32
+    standardtype  go to state 33
 
 
 State 23
 
-    5 declarations: declarations VAR identlist ':' . type ';'
+   16 subprogheading: FUNCTION $@3 . IDENTIFIER arguments ':' standardtype ';'
 
-    ARRAY    shift, and go to state 40
-    INTEGER  shift, and go to state 41
-    REAL     shift, and go to state 42
-
-    type          go to state 43
-    standardtype  go to state 44
+    IDENTIFIER  shift, and go to state 34
 
 
 State 24
 
-   15 subprogheading: FUNCTION $@2 . IDENTIFIER arguments ':' standardtype ';'
+   18 subprogheading: PROCEDURE $@4 . IDENTIFIER arguments ';'
 
-    IDENTIFIER  shift, and go to state 45
+    IDENTIFIER  shift, and go to state 35
 
 
 State 25
 
-   17 subprogheading: PROCEDURE $@3 . IDENTIFIER arguments ';'
+   23 compoundstatement: BEGINTOK . optionalstatements ENDTOK
 
-    IDENTIFIER  shift, and go to state 46
+    IDENTIFIER  shift, and go to state 36
+    BEGINTOK    shift, and go to state 25
+    IF          shift, and go to state 37
+    WHILE       shift, and go to state 38
+    READLN      shift, and go to state 39
+    WRITELN     shift, and go to state 40
+
+    $default  reduce using rule 25 (optionalstatements)
+
+    compoundstatement   go to state 41
+    optionalstatements  go to state 42
+    statementlist       go to state 43
+    statement           go to state 44
+    variable            go to state 45
+    procstatement       go to state 46
 
 
 State 26
 
-   32 variable: IDENTIFIER .
-   33         | IDENTIFIER . '[' expression ']'
-   34 procstatement: IDENTIFIER .
-   35              | IDENTIFIER . '(' exprlist ')'
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls $@2 compoundstatement . '.'
 
-    '('  shift, and go to state 47
-    '['  shift, and go to state 48
-
-    ASSIGN    reduce using rule 32 (variable)
-    $default  reduce using rule 34 (procstatement)
+    '.'  shift, and go to state 47
 
 
 State 27
 
-   30 statement: IF . expression THEN statement ELSE statement
+   12 subprogdecls: subprogdecls subprogdecl ';' .
 
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    boolexpression  go to state 54
-    expression      go to state 55
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
+    $default  reduce using rule 12 (subprogdecls)
 
 
 State 28
 
-   31 statement: WHILE . expression DO statement
+    6 declarations: declarations . VAR identlist ':' type ';'
+   14 subprogdecl: subprogheading declarations . compoundstatement
 
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
+    VAR       shift, and go to state 14
+    BEGINTOK  shift, and go to state 25
 
-    boolexpression  go to state 54
-    expression      go to state 60
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
+    compoundstatement  go to state 48
 
 
 State 29
 
-   37 procstatement: READLN . '(' exprlist ')'
+    9 type: ARRAY . '[' NUMBER RANGE NUMBER ']' OF standardtype
 
-    '('  shift, and go to state 61
+    '['  shift, and go to state 49
 
 
 State 30
 
-   36 procstatement: WRITELN . '(' exprlist ')'
-
-    '('  shift, and go to state 62
-
-
-State 31
-
-   29 statement: compoundstatement .
-
-    $default  reduce using rule 29 (statement)
-
-
-State 32
-
-   22 compoundstatement: BEGINTOK optionalstatements . ENDTOK
-
-    ENDTOK  shift, and go to state 63
-
-
-State 33
-
-   23 optionalstatements: statementlist .
-   26 statementlist: statementlist . ';' statement
-
-    ';'  shift, and go to state 64
-
-    $default  reduce using rule 23 (optionalstatements)
-
-
-State 34
-
-   25 statementlist: statement .
-
-    $default  reduce using rule 25 (statementlist)
-
-
-State 35
-
-   27 statement: variable . ASSIGN expression
-
-    ASSIGN  shift, and go to state 65
-
-
-State 36
-
-   28 statement: procstatement .
-
-    $default  reduce using rule 28 (statement)
-
-
-State 37
-
-   11 subprogdecls: subprogdecls subprogdecl ';' .
-
-    $default  reduce using rule 11 (subprogdecls)
-
-
-State 38
-
-    5 declarations: declarations . VAR identlist ':' type ';'
-   13 subprogdecl: subprogheading declarations . compoundstatement
-
-    VAR       shift, and go to state 14
-    BEGINTOK  shift, and go to state 19
-
-    compoundstatement  go to state 66
-
-
-State 39
-
-    2 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls compoundstatement '.' .
-
-    $default  reduce using rule 2 (program)
-
-
-State 40
-
-    8 type: ARRAY . '[' NUMBER RANGE NUMBER ']' OF standardtype
-
-    '['  shift, and go to state 67
-
-
-State 41
-
-    9 standardtype: INTEGER .
-
-    $default  reduce using rule 9 (standardtype)
-
-
-State 42
-
-   10 standardtype: REAL .
+   10 standardtype: INTEGER .
 
     $default  reduce using rule 10 (standardtype)
 
 
+State 31
+
+   11 standardtype: REAL .
+
+    $default  reduce using rule 11 (standardtype)
+
+
+State 32
+
+    6 declarations: declarations VAR identlist ':' type . ';'
+
+    ';'  shift, and go to state 50
+
+
+State 33
+
+    8 type: standardtype .
+
+    $default  reduce using rule 8 (type)
+
+
+State 34
+
+   16 subprogheading: FUNCTION $@3 IDENTIFIER . arguments ':' standardtype ';'
+
+    '('  shift, and go to state 51
+
+    $default  reduce using rule 20 (arguments)
+
+    arguments  go to state 52
+
+
+State 35
+
+   18 subprogheading: PROCEDURE $@4 IDENTIFIER . arguments ';'
+
+    '('  shift, and go to state 51
+
+    $default  reduce using rule 20 (arguments)
+
+    arguments  go to state 53
+
+
+State 36
+
+   33 variable: IDENTIFIER .
+   34         | IDENTIFIER . '[' expression ']'
+   35 procstatement: IDENTIFIER .
+   36              | IDENTIFIER . '(' exprlist ')'
+
+    '('  shift, and go to state 54
+    '['  shift, and go to state 55
+
+    ASSIGN    reduce using rule 33 (variable)
+    $default  reduce using rule 35 (procstatement)
+
+
+State 37
+
+   31 statement: IF . expression THEN statement ELSE statement
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    boolexpression  go to state 61
+    expression      go to state 62
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 38
+
+   32 statement: WHILE . expression DO statement
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    boolexpression  go to state 61
+    expression      go to state 67
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 39
+
+   38 procstatement: READLN . '(' exprlist ')'
+
+    '('  shift, and go to state 68
+
+
+State 40
+
+   37 procstatement: WRITELN . '(' exprlist ')'
+
+    '('  shift, and go to state 69
+
+
+State 41
+
+   30 statement: compoundstatement .
+
+    $default  reduce using rule 30 (statement)
+
+
+State 42
+
+   23 compoundstatement: BEGINTOK optionalstatements . ENDTOK
+
+    ENDTOK  shift, and go to state 70
+
+
 State 43
 
-    5 declarations: declarations VAR identlist ':' type . ';'
+   24 optionalstatements: statementlist .
+   27 statementlist: statementlist . ';' statement
 
-    ';'  shift, and go to state 68
+    ';'  shift, and go to state 71
+
+    $default  reduce using rule 24 (optionalstatements)
 
 
 State 44
 
-    7 type: standardtype .
-
-    $default  reduce using rule 7 (type)
-
-
-State 45
-
-   15 subprogheading: FUNCTION $@2 IDENTIFIER . arguments ':' standardtype ';'
-
-    '('  shift, and go to state 69
-
-    $default  reduce using rule 19 (arguments)
-
-    arguments  go to state 70
-
-
-State 46
-
-   17 subprogheading: PROCEDURE $@3 IDENTIFIER . arguments ';'
-
-    '('  shift, and go to state 69
-
-    $default  reduce using rule 19 (arguments)
-
-    arguments  go to state 71
-
-
-State 47
-
-   35 procstatement: IDENTIFIER '(' . exprlist ')'
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    exprlist        go to state 72
-    boolexpression  go to state 54
-    expression      go to state 73
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 48
-
-   33 variable: IDENTIFIER '[' . expression ']'
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    boolexpression  go to state 54
-    expression      go to state 74
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 49
-
-   52 factor: IDENTIFIER .
-   53       | IDENTIFIER . '(' exprlist ')'
-
-    '('  shift, and go to state 75
-
-    $default  reduce using rule 52 (factor)
-
-
-State 50
-
-   54 factor: NUMBER .
-
-    $default  reduce using rule 54 (factor)
-
-
-State 51
-
-   55 factor: '(' . expression ')'
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    boolexpression  go to state 54
-    expression      go to state 76
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 52
-
-   47 sign: '+' .
-
-    $default  reduce using rule 47 (sign)
-
-
-State 53
-
-   48 sign: '-' .
-
-    $default  reduce using rule 48 (sign)
-
-
-State 54
-
-   42 expression: boolexpression .
-
-    $default  reduce using rule 42 (expression)
-
-
-State 55
-
-   30 statement: IF expression . THEN statement ELSE statement
-
-    THEN  shift, and go to state 77
-
-
-State 56
-
-   40 boolexpression: simpleexpr . RELOP simpleexpr
-   41 expression: simpleexpr .
-   45 simpleexpr: simpleexpr . '+' term
-   46           | simpleexpr . '-' term
-
-    RELOP  shift, and go to state 78
-    '+'    shift, and go to state 79
-    '-'    shift, and go to state 80
-
-    $default  reduce using rule 41 (expression)
-
-
-State 57
-
-   44 simpleexpr: sign . term
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-
-    term    go to state 81
-    factor  go to state 59
-
-
-State 58
-
-   43 simpleexpr: term .
-   51 term: term . MULOP $@4 factor
-
-    MULOP  shift, and go to state 82
-
-    $default  reduce using rule 43 (simpleexpr)
-
-
-State 59
-
-   49 term: factor .
-
-    $default  reduce using rule 49 (term)
-
-
-State 60
-
-   31 statement: WHILE expression . DO statement
-
-    DO  shift, and go to state 83
-
-
-State 61
-
-   37 procstatement: READLN '(' . exprlist ')'
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    exprlist        go to state 84
-    boolexpression  go to state 54
-    expression      go to state 73
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 62
-
-   36 procstatement: WRITELN '(' . exprlist ')'
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    exprlist        go to state 85
-    boolexpression  go to state 54
-    expression      go to state 73
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 63
-
-   22 compoundstatement: BEGINTOK optionalstatements ENDTOK .
-
-    $default  reduce using rule 22 (compoundstatement)
-
-
-State 64
-
-   26 statementlist: statementlist ';' . statement
-
-    IDENTIFIER  shift, and go to state 26
-    BEGINTOK    shift, and go to state 19
-    IF          shift, and go to state 27
-    WHILE       shift, and go to state 28
-    READLN      shift, and go to state 29
-    WRITELN     shift, and go to state 30
-
-    compoundstatement  go to state 31
-    statement          go to state 86
-    variable           go to state 35
-    procstatement      go to state 36
-
-
-State 65
-
-   27 statement: variable ASSIGN . expression
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    boolexpression  go to state 54
-    expression      go to state 87
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 66
-
-   13 subprogdecl: subprogheading declarations compoundstatement .
-
-    $default  reduce using rule 13 (subprogdecl)
-
-
-State 67
-
-    8 type: ARRAY '[' . NUMBER RANGE NUMBER ']' OF standardtype
-
-    NUMBER  shift, and go to state 88
-
-
-State 68
-
-    5 declarations: declarations VAR identlist ':' type ';' .
-
-    $default  reduce using rule 5 (declarations)
-
-
-State 69
-
-   18 arguments: '(' . paramlist ')'
-
-    IDENTIFIER  shift, and go to state 6
-
-    identlist  go to state 89
-    paramlist  go to state 90
-
-
-State 70
-
-   15 subprogheading: FUNCTION $@2 IDENTIFIER arguments . ':' standardtype ';'
-
-    ':'  shift, and go to state 91
-
-
-State 71
-
-   17 subprogheading: PROCEDURE $@3 IDENTIFIER arguments . ';'
-
-    ';'  shift, and go to state 92
-
-
-State 72
-
-   35 procstatement: IDENTIFIER '(' exprlist . ')'
-   39 exprlist: exprlist . ',' expression
-
-    ')'  shift, and go to state 93
-    ','  shift, and go to state 94
-
-
-State 73
-
-   38 exprlist: expression .
-
-    $default  reduce using rule 38 (exprlist)
-
-
-State 74
-
-   33 variable: IDENTIFIER '[' expression . ']'
-
-    ']'  shift, and go to state 95
-
-
-State 75
-
-   53 factor: IDENTIFIER '(' . exprlist ')'
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    exprlist        go to state 96
-    boolexpression  go to state 54
-    expression      go to state 73
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 76
-
-   55 factor: '(' expression . ')'
-
-    ')'  shift, and go to state 97
-
-
-State 77
-
-   30 statement: IF expression THEN . statement ELSE statement
-
-    IDENTIFIER  shift, and go to state 26
-    BEGINTOK    shift, and go to state 19
-    IF          shift, and go to state 27
-    WHILE       shift, and go to state 28
-    READLN      shift, and go to state 29
-    WRITELN     shift, and go to state 30
-
-    compoundstatement  go to state 31
-    statement          go to state 98
-    variable           go to state 35
-    procstatement      go to state 36
-
-
-State 78
-
-   40 boolexpression: simpleexpr RELOP . simpleexpr
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    simpleexpr  go to state 99
-    sign        go to state 57
-    term        go to state 58
-    factor      go to state 59
-
-
-State 79
-
-   45 simpleexpr: simpleexpr '+' . term
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-
-    term    go to state 100
-    factor  go to state 59
-
-
-State 80
-
-   46 simpleexpr: simpleexpr '-' . term
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-
-    term    go to state 101
-    factor  go to state 59
-
-
-State 81
-
-   44 simpleexpr: sign term .
-   51 term: term . MULOP $@4 factor
-
-    MULOP  shift, and go to state 82
-
-    $default  reduce using rule 44 (simpleexpr)
-
-
-State 82
-
-   51 term: term MULOP . $@4 factor
-
-    $default  reduce using rule 50 ($@4)
-
-    $@4  go to state 102
-
-
-State 83
-
-   31 statement: WHILE expression DO . statement
-
-    IDENTIFIER  shift, and go to state 26
-    BEGINTOK    shift, and go to state 19
-    IF          shift, and go to state 27
-    WHILE       shift, and go to state 28
-    READLN      shift, and go to state 29
-    WRITELN     shift, and go to state 30
-
-    compoundstatement  go to state 31
-    statement          go to state 103
-    variable           go to state 35
-    procstatement      go to state 36
-
-
-State 84
-
-   37 procstatement: READLN '(' exprlist . ')'
-   39 exprlist: exprlist . ',' expression
-
-    ')'  shift, and go to state 104
-    ','  shift, and go to state 94
-
-
-State 85
-
-   36 procstatement: WRITELN '(' exprlist . ')'
-   39 exprlist: exprlist . ',' expression
-
-    ')'  shift, and go to state 105
-    ','  shift, and go to state 94
-
-
-State 86
-
-   26 statementlist: statementlist ';' statement .
+   26 statementlist: statement .
 
     $default  reduce using rule 26 (statementlist)
 
 
-State 87
+State 45
 
-   27 statement: variable ASSIGN expression .
+   28 statement: variable . ASSIGN expression
 
-    $default  reduce using rule 27 (statement)
+    ASSIGN  shift, and go to state 72
 
 
-State 88
+State 46
 
-    8 type: ARRAY '[' NUMBER . RANGE NUMBER ']' OF standardtype
+   29 statement: procstatement .
 
-    RANGE  shift, and go to state 106
+    $default  reduce using rule 29 (statement)
 
 
-State 89
+State 47
 
-    4 identlist: identlist . ',' IDENTIFIER
-   20 paramlist: identlist . ':' type
+    3 program: PROGRAM IDENTIFIER '(' identlist ')' ';' $@1 declarations subprogdecls $@2 compoundstatement '.' .
 
-    ','  shift, and go to state 9
-    ':'  shift, and go to state 107
+    $default  reduce using rule 3 (program)
 
 
-State 90
+State 48
 
-   18 arguments: '(' paramlist . ')'
-   21 paramlist: paramlist . ';' identlist ':' type
+   14 subprogdecl: subprogheading declarations compoundstatement .
 
-    ')'  shift, and go to state 108
-    ';'  shift, and go to state 109
+    $default  reduce using rule 14 (subprogdecl)
 
 
-State 91
+State 49
 
-   15 subprogheading: FUNCTION $@2 IDENTIFIER arguments ':' . standardtype ';'
+    9 type: ARRAY '[' . NUMBER RANGE NUMBER ']' OF standardtype
 
-    INTEGER  shift, and go to state 41
-    REAL     shift, and go to state 42
+    NUMBER  shift, and go to state 73
 
-    standardtype  go to state 110
 
+State 50
 
-State 92
+    6 declarations: declarations VAR identlist ':' type ';' .
 
-   17 subprogheading: PROCEDURE $@3 IDENTIFIER arguments ';' .
+    $default  reduce using rule 6 (declarations)
 
-    $default  reduce using rule 17 (subprogheading)
 
+State 51
 
-State 93
-
-   35 procstatement: IDENTIFIER '(' exprlist ')' .
-
-    $default  reduce using rule 35 (procstatement)
-
-
-State 94
-
-   39 exprlist: exprlist ',' . expression
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-    '+'         shift, and go to state 52
-    '-'         shift, and go to state 53
-
-    boolexpression  go to state 54
-    expression      go to state 111
-    simpleexpr      go to state 56
-    sign            go to state 57
-    term            go to state 58
-    factor          go to state 59
-
-
-State 95
-
-   33 variable: IDENTIFIER '[' expression ']' .
-
-    $default  reduce using rule 33 (variable)
-
-
-State 96
-
-   39 exprlist: exprlist . ',' expression
-   53 factor: IDENTIFIER '(' exprlist . ')'
-
-    ')'  shift, and go to state 112
-    ','  shift, and go to state 94
-
-
-State 97
-
-   55 factor: '(' expression ')' .
-
-    $default  reduce using rule 55 (factor)
-
-
-State 98
-
-   30 statement: IF expression THEN statement . ELSE statement
-
-    ELSE  shift, and go to state 113
-
-
-State 99
-
-   40 boolexpression: simpleexpr RELOP simpleexpr .
-   45 simpleexpr: simpleexpr . '+' term
-   46           | simpleexpr . '-' term
-
-    '+'  shift, and go to state 79
-    '-'  shift, and go to state 80
-
-    $default  reduce using rule 40 (boolexpression)
-
-
-State 100
-
-   45 simpleexpr: simpleexpr '+' term .
-   51 term: term . MULOP $@4 factor
-
-    MULOP  shift, and go to state 82
-
-    $default  reduce using rule 45 (simpleexpr)
-
-
-State 101
-
-   46 simpleexpr: simpleexpr '-' term .
-   51 term: term . MULOP $@4 factor
-
-    MULOP  shift, and go to state 82
-
-    $default  reduce using rule 46 (simpleexpr)
-
-
-State 102
-
-   51 term: term MULOP $@4 . factor
-
-    IDENTIFIER  shift, and go to state 49
-    NUMBER      shift, and go to state 50
-    '('         shift, and go to state 51
-
-    factor  go to state 114
-
-
-State 103
-
-   31 statement: WHILE expression DO statement .
-
-    $default  reduce using rule 31 (statement)
-
-
-State 104
-
-   37 procstatement: READLN '(' exprlist ')' .
-
-    $default  reduce using rule 37 (procstatement)
-
-
-State 105
-
-   36 procstatement: WRITELN '(' exprlist ')' .
-
-    $default  reduce using rule 36 (procstatement)
-
-
-State 106
-
-    8 type: ARRAY '[' NUMBER RANGE . NUMBER ']' OF standardtype
-
-    NUMBER  shift, and go to state 115
-
-
-State 107
-
-   20 paramlist: identlist ':' . type
-
-    ARRAY    shift, and go to state 40
-    INTEGER  shift, and go to state 41
-    REAL     shift, and go to state 42
-
-    type          go to state 116
-    standardtype  go to state 44
-
-
-State 108
-
-   18 arguments: '(' paramlist ')' .
-
-    $default  reduce using rule 18 (arguments)
-
-
-State 109
-
-   21 paramlist: paramlist ';' . identlist ':' type
+   19 arguments: '(' . paramlist ')'
 
     IDENTIFIER  shift, and go to state 6
 
-    identlist  go to state 117
+    identlist  go to state 74
+    paramlist  go to state 75
 
 
-State 110
+State 52
 
-   15 subprogheading: FUNCTION $@2 IDENTIFIER arguments ':' standardtype . ';'
+   16 subprogheading: FUNCTION $@3 IDENTIFIER arguments . ':' standardtype ';'
 
-    ';'  shift, and go to state 118
-
-
-State 111
-
-   39 exprlist: exprlist ',' expression .
-
-    $default  reduce using rule 39 (exprlist)
+    ':'  shift, and go to state 76
 
 
-State 112
+State 53
 
-   53 factor: IDENTIFIER '(' exprlist ')' .
+   18 subprogheading: PROCEDURE $@4 IDENTIFIER arguments . ';'
+
+    ';'  shift, and go to state 77
+
+
+State 54
+
+   36 procstatement: IDENTIFIER '(' . exprlist ')'
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    exprlist        go to state 78
+    boolexpression  go to state 61
+    expression      go to state 79
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 55
+
+   34 variable: IDENTIFIER '[' . expression ']'
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    boolexpression  go to state 61
+    expression      go to state 80
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 56
+
+   53 factor: IDENTIFIER .
+   54       | IDENTIFIER . '(' exprlist ')'
+
+    '('  shift, and go to state 81
 
     $default  reduce using rule 53 (factor)
 
 
-State 113
+State 57
 
-   30 statement: IF expression THEN statement ELSE . statement
+   55 factor: NUMBER .
 
-    IDENTIFIER  shift, and go to state 26
-    BEGINTOK    shift, and go to state 19
-    IF          shift, and go to state 27
-    WHILE       shift, and go to state 28
-    READLN      shift, and go to state 29
-    WRITELN     shift, and go to state 30
-
-    compoundstatement  go to state 31
-    statement          go to state 119
-    variable           go to state 35
-    procstatement      go to state 36
+    $default  reduce using rule 55 (factor)
 
 
-State 114
+State 58
 
-   51 term: term MULOP $@4 factor .
+   56 factor: '(' . expression ')'
 
-    $default  reduce using rule 51 (term)
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    boolexpression  go to state 61
+    expression      go to state 82
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
 
 
-State 115
+State 59
 
-    8 type: ARRAY '[' NUMBER RANGE NUMBER . ']' OF standardtype
+   48 sign: '+' .
+
+    $default  reduce using rule 48 (sign)
+
+
+State 60
+
+   49 sign: '-' .
+
+    $default  reduce using rule 49 (sign)
+
+
+State 61
+
+   43 expression: boolexpression .
+
+    $default  reduce using rule 43 (expression)
+
+
+State 62
+
+   31 statement: IF expression . THEN statement ELSE statement
+
+    THEN  shift, and go to state 83
+
+
+State 63
+
+   41 boolexpression: simpleexpr . RELOP simpleexpr
+   42 expression: simpleexpr .
+   46 simpleexpr: simpleexpr . '+' term
+   47           | simpleexpr . '-' term
+
+    RELOP  shift, and go to state 84
+    '+'    shift, and go to state 85
+    '-'    shift, and go to state 86
+
+    $default  reduce using rule 42 (expression)
+
+
+State 64
+
+   45 simpleexpr: sign . term
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+
+    term    go to state 87
+    factor  go to state 66
+
+
+State 65
+
+   44 simpleexpr: term .
+   52 term: term . MULOP $@5 factor
+
+    MULOP  shift, and go to state 88
+
+    $default  reduce using rule 44 (simpleexpr)
+
+
+State 66
+
+   50 term: factor .
+
+    $default  reduce using rule 50 (term)
+
+
+State 67
+
+   32 statement: WHILE expression . DO statement
+
+    DO  shift, and go to state 89
+
+
+State 68
+
+   38 procstatement: READLN '(' . exprlist ')'
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    exprlist        go to state 90
+    boolexpression  go to state 61
+    expression      go to state 79
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 69
+
+   37 procstatement: WRITELN '(' . exprlist ')'
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    exprlist        go to state 91
+    boolexpression  go to state 61
+    expression      go to state 79
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 70
+
+   23 compoundstatement: BEGINTOK optionalstatements ENDTOK .
+
+    $default  reduce using rule 23 (compoundstatement)
+
+
+State 71
+
+   27 statementlist: statementlist ';' . statement
+
+    IDENTIFIER  shift, and go to state 36
+    BEGINTOK    shift, and go to state 25
+    IF          shift, and go to state 37
+    WHILE       shift, and go to state 38
+    READLN      shift, and go to state 39
+    WRITELN     shift, and go to state 40
+
+    compoundstatement  go to state 41
+    statement          go to state 92
+    variable           go to state 45
+    procstatement      go to state 46
+
+
+State 72
+
+   28 statement: variable ASSIGN . expression
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    boolexpression  go to state 61
+    expression      go to state 93
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 73
+
+    9 type: ARRAY '[' NUMBER . RANGE NUMBER ']' OF standardtype
+
+    RANGE  shift, and go to state 94
+
+
+State 74
+
+    5 identlist: identlist . ',' IDENTIFIER
+   21 paramlist: identlist . ':' type
+
+    ','  shift, and go to state 9
+    ':'  shift, and go to state 95
+
+
+State 75
+
+   19 arguments: '(' paramlist . ')'
+   22 paramlist: paramlist . ';' identlist ':' type
+
+    ')'  shift, and go to state 96
+    ';'  shift, and go to state 97
+
+
+State 76
+
+   16 subprogheading: FUNCTION $@3 IDENTIFIER arguments ':' . standardtype ';'
+
+    INTEGER  shift, and go to state 30
+    REAL     shift, and go to state 31
+
+    standardtype  go to state 98
+
+
+State 77
+
+   18 subprogheading: PROCEDURE $@4 IDENTIFIER arguments ';' .
+
+    $default  reduce using rule 18 (subprogheading)
+
+
+State 78
+
+   36 procstatement: IDENTIFIER '(' exprlist . ')'
+   40 exprlist: exprlist . ',' expression
+
+    ')'  shift, and go to state 99
+    ','  shift, and go to state 100
+
+
+State 79
+
+   39 exprlist: expression .
+
+    $default  reduce using rule 39 (exprlist)
+
+
+State 80
+
+   34 variable: IDENTIFIER '[' expression . ']'
+
+    ']'  shift, and go to state 101
+
+
+State 81
+
+   54 factor: IDENTIFIER '(' . exprlist ')'
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    exprlist        go to state 102
+    boolexpression  go to state 61
+    expression      go to state 79
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 82
+
+   56 factor: '(' expression . ')'
+
+    ')'  shift, and go to state 103
+
+
+State 83
+
+   31 statement: IF expression THEN . statement ELSE statement
+
+    IDENTIFIER  shift, and go to state 36
+    BEGINTOK    shift, and go to state 25
+    IF          shift, and go to state 37
+    WHILE       shift, and go to state 38
+    READLN      shift, and go to state 39
+    WRITELN     shift, and go to state 40
+
+    compoundstatement  go to state 41
+    statement          go to state 104
+    variable           go to state 45
+    procstatement      go to state 46
+
+
+State 84
+
+   41 boolexpression: simpleexpr RELOP . simpleexpr
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    simpleexpr  go to state 105
+    sign        go to state 64
+    term        go to state 65
+    factor      go to state 66
+
+
+State 85
+
+   46 simpleexpr: simpleexpr '+' . term
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+
+    term    go to state 106
+    factor  go to state 66
+
+
+State 86
+
+   47 simpleexpr: simpleexpr '-' . term
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+
+    term    go to state 107
+    factor  go to state 66
+
+
+State 87
+
+   45 simpleexpr: sign term .
+   52 term: term . MULOP $@5 factor
+
+    MULOP  shift, and go to state 88
+
+    $default  reduce using rule 45 (simpleexpr)
+
+
+State 88
+
+   52 term: term MULOP . $@5 factor
+
+    $default  reduce using rule 51 ($@5)
+
+    $@5  go to state 108
+
+
+State 89
+
+   32 statement: WHILE expression DO . statement
+
+    IDENTIFIER  shift, and go to state 36
+    BEGINTOK    shift, and go to state 25
+    IF          shift, and go to state 37
+    WHILE       shift, and go to state 38
+    READLN      shift, and go to state 39
+    WRITELN     shift, and go to state 40
+
+    compoundstatement  go to state 41
+    statement          go to state 109
+    variable           go to state 45
+    procstatement      go to state 46
+
+
+State 90
+
+   38 procstatement: READLN '(' exprlist . ')'
+   40 exprlist: exprlist . ',' expression
+
+    ')'  shift, and go to state 110
+    ','  shift, and go to state 100
+
+
+State 91
+
+   37 procstatement: WRITELN '(' exprlist . ')'
+   40 exprlist: exprlist . ',' expression
+
+    ')'  shift, and go to state 111
+    ','  shift, and go to state 100
+
+
+State 92
+
+   27 statementlist: statementlist ';' statement .
+
+    $default  reduce using rule 27 (statementlist)
+
+
+State 93
+
+   28 statement: variable ASSIGN expression .
+
+    $default  reduce using rule 28 (statement)
+
+
+State 94
+
+    9 type: ARRAY '[' NUMBER RANGE . NUMBER ']' OF standardtype
+
+    NUMBER  shift, and go to state 112
+
+
+State 95
+
+   21 paramlist: identlist ':' . type
+
+    ARRAY    shift, and go to state 29
+    INTEGER  shift, and go to state 30
+    REAL     shift, and go to state 31
+
+    type          go to state 113
+    standardtype  go to state 33
+
+
+State 96
+
+   19 arguments: '(' paramlist ')' .
+
+    $default  reduce using rule 19 (arguments)
+
+
+State 97
+
+   22 paramlist: paramlist ';' . identlist ':' type
+
+    IDENTIFIER  shift, and go to state 6
+
+    identlist  go to state 114
+
+
+State 98
+
+   16 subprogheading: FUNCTION $@3 IDENTIFIER arguments ':' standardtype . ';'
+
+    ';'  shift, and go to state 115
+
+
+State 99
+
+   36 procstatement: IDENTIFIER '(' exprlist ')' .
+
+    $default  reduce using rule 36 (procstatement)
+
+
+State 100
+
+   40 exprlist: exprlist ',' . expression
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
+
+    boolexpression  go to state 61
+    expression      go to state 116
+    simpleexpr      go to state 63
+    sign            go to state 64
+    term            go to state 65
+    factor          go to state 66
+
+
+State 101
+
+   34 variable: IDENTIFIER '[' expression ']' .
+
+    $default  reduce using rule 34 (variable)
+
+
+State 102
+
+   40 exprlist: exprlist . ',' expression
+   54 factor: IDENTIFIER '(' exprlist . ')'
+
+    ')'  shift, and go to state 117
+    ','  shift, and go to state 100
+
+
+State 103
+
+   56 factor: '(' expression ')' .
+
+    $default  reduce using rule 56 (factor)
+
+
+State 104
+
+   31 statement: IF expression THEN statement . ELSE statement
+
+    ELSE  shift, and go to state 118
+
+
+State 105
+
+   41 boolexpression: simpleexpr RELOP simpleexpr .
+   46 simpleexpr: simpleexpr . '+' term
+   47           | simpleexpr . '-' term
+
+    '+'  shift, and go to state 85
+    '-'  shift, and go to state 86
+
+    $default  reduce using rule 41 (boolexpression)
+
+
+State 106
+
+   46 simpleexpr: simpleexpr '+' term .
+   52 term: term . MULOP $@5 factor
+
+    MULOP  shift, and go to state 88
+
+    $default  reduce using rule 46 (simpleexpr)
+
+
+State 107
+
+   47 simpleexpr: simpleexpr '-' term .
+   52 term: term . MULOP $@5 factor
+
+    MULOP  shift, and go to state 88
+
+    $default  reduce using rule 47 (simpleexpr)
+
+
+State 108
+
+   52 term: term MULOP $@5 . factor
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+
+    factor  go to state 119
+
+
+State 109
+
+   32 statement: WHILE expression DO statement .
+
+    $default  reduce using rule 32 (statement)
+
+
+State 110
+
+   38 procstatement: READLN '(' exprlist ')' .
+
+    $default  reduce using rule 38 (procstatement)
+
+
+State 111
+
+   37 procstatement: WRITELN '(' exprlist ')' .
+
+    $default  reduce using rule 37 (procstatement)
+
+
+State 112
+
+    9 type: ARRAY '[' NUMBER RANGE NUMBER . ']' OF standardtype
 
     ']'  shift, and go to state 120
 
 
-State 116
+State 113
 
-   20 paramlist: identlist ':' type .
+   21 paramlist: identlist ':' type .
 
-    $default  reduce using rule 20 (paramlist)
+    $default  reduce using rule 21 (paramlist)
 
 
-State 117
+State 114
 
-    4 identlist: identlist . ',' IDENTIFIER
-   21 paramlist: paramlist ';' identlist . ':' type
+    5 identlist: identlist . ',' IDENTIFIER
+   22 paramlist: paramlist ';' identlist . ':' type
 
     ','  shift, and go to state 9
     ':'  shift, and go to state 121
 
 
+State 115
+
+   16 subprogheading: FUNCTION $@3 IDENTIFIER arguments ':' standardtype ';' .
+
+    $default  reduce using rule 16 (subprogheading)
+
+
+State 116
+
+   40 exprlist: exprlist ',' expression .
+
+    $default  reduce using rule 40 (exprlist)
+
+
+State 117
+
+   54 factor: IDENTIFIER '(' exprlist ')' .
+
+    $default  reduce using rule 54 (factor)
+
+
 State 118
 
-   15 subprogheading: FUNCTION $@2 IDENTIFIER arguments ':' standardtype ';' .
+   31 statement: IF expression THEN statement ELSE . statement
 
-    $default  reduce using rule 15 (subprogheading)
+    IDENTIFIER  shift, and go to state 36
+    BEGINTOK    shift, and go to state 25
+    IF          shift, and go to state 37
+    WHILE       shift, and go to state 38
+    READLN      shift, and go to state 39
+    WRITELN     shift, and go to state 40
+
+    compoundstatement  go to state 41
+    statement          go to state 122
+    variable           go to state 45
+    procstatement      go to state 46
 
 
 State 119
 
-   30 statement: IF expression THEN statement ELSE statement .
+   52 term: term MULOP $@5 factor .
 
-    $default  reduce using rule 30 (statement)
+    $default  reduce using rule 52 (term)
 
 
 State 120
 
-    8 type: ARRAY '[' NUMBER RANGE NUMBER ']' . OF standardtype
+    9 type: ARRAY '[' NUMBER RANGE NUMBER ']' . OF standardtype
 
-    OF  shift, and go to state 122
+    OF  shift, and go to state 123
 
 
 State 121
 
-   21 paramlist: paramlist ';' identlist ':' . type
+   22 paramlist: paramlist ';' identlist ':' . type
 
-    ARRAY    shift, and go to state 40
-    INTEGER  shift, and go to state 41
-    REAL     shift, and go to state 42
+    ARRAY    shift, and go to state 29
+    INTEGER  shift, and go to state 30
+    REAL     shift, and go to state 31
 
-    type          go to state 123
-    standardtype  go to state 44
+    type          go to state 124
+    standardtype  go to state 33
 
 
 State 122
 
-    8 type: ARRAY '[' NUMBER RANGE NUMBER ']' OF . standardtype
+   31 statement: IF expression THEN statement ELSE statement .
 
-    INTEGER  shift, and go to state 41
-    REAL     shift, and go to state 42
-
-    standardtype  go to state 124
+    $default  reduce using rule 31 (statement)
 
 
 State 123
 
-   21 paramlist: paramlist ';' identlist ':' type .
+    9 type: ARRAY '[' NUMBER RANGE NUMBER ']' OF . standardtype
 
-    $default  reduce using rule 21 (paramlist)
+    INTEGER  shift, and go to state 30
+    REAL     shift, and go to state 31
+
+    standardtype  go to state 125
 
 
 State 124
 
-    8 type: ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype .
+   22 paramlist: paramlist ';' identlist ':' type .
 
-    $default  reduce using rule 8 (type)
+    $default  reduce using rule 22 (paramlist)
+
+
+State 125
+
+    9 type: ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype .
+
+    $default  reduce using rule 9 (type)
