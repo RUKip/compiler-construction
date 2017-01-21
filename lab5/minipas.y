@@ -5,6 +5,7 @@
 #include "strtab.h"
 #include "lex.yy.c"
 #include "stack.h"
+#include "outputToC.h"
 
 bucket* globalTable; 
 bucket* localTable;
@@ -57,19 +58,18 @@ void checkEqual(int type1, int type2){ //check type function/assignment (real/in
 }
 
 void insertSymbolsFromStack(int type) {
+	bucket* currentTable;
 	  if (isGlobal) {
-		  while(!isEmpty()) {
-			char* ident = pop();
-			checkDoubleDeclaration(ident, globalTable);
-			insertSymbol(globalTable, ident, type, 0);
-		  }
+		  currentTable = globalTable;
 	  } else {
-		  while(!isEmpty()) {
-			char* ident = pop();
-			checkDoubleDeclaration(ident, localTable);
-			insertSymbol(localTable, ident, type, 0);
-		  }
+		currentTable = localTable;
 	  }
+	while(!isEmpty()) {
+		char* ident = pop();
+		outputDeclaration(type, ident);//cOuput
+		checkDoubleDeclaration(ident, currentTable);
+		insertSymbol(currentTable, ident, type, 0);
+	}
 	  freeStack();
 }
 
@@ -96,27 +96,26 @@ void addArg(int arg) {
 }
 
 void insertSymbolsAndArguments(int type){
-		  if (isGlobal) {
-		  while(!isEmpty()) {
-			char* ident = pop();
-			checkDoubleDeclaration(ident, globalTable);
-			insertSymbol(globalTable, ident, type, 0);
-			addArg(type);
-		  }
+	  bucket* currentTable;
+	  if (isGlobal) {
+		currentTable = globalTable;
+		 
 	  } else {
-		  while(!isEmpty()) {
-			char* ident = pop();
-			checkDoubleDeclaration(ident, localTable);
-			insertSymbol(localTable, ident, type, 0);
-			addArg(type);
-		  }
+		 currentTable = localTable;
 	  }
+	
+	  while(!isEmpty()) {
+		char* ident = pop();
+		//place function argument here for c tranlsation
+		checkDoubleDeclaration(ident, currentTable);
+		insertSymbol(currentTable, ident, type, 0);
+		addArg(type);
+	  }
+	
 	  freeStack();
 }
 
 %}
-
-%start program, pass1
 
 %union {
   int type;
@@ -133,7 +132,7 @@ void insertSymbolsAndArguments(int type){
        
 %%
 
-program            : PROGRAM IDENTIFIER '(' identlist ')' ';' {freeStack();} //make main here??
+program            : PROGRAM IDENTIFIER '(' identlist ')' ';' {freeStack();}
                      declarations
 	                 subprogdecls
 	                 compoundstatement
@@ -175,6 +174,7 @@ subprogdecl        : subprogheading declarations compoundstatement
 
 subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments();} IDENTIFIER arguments ':' standardtype ';' 
 						{
+							outputFunctionName($6, $3); //cOuput
 							checkDoubleDeclaration($3, localTable); 
 							insertSymbol(localTable, $3, $6, 0); 
 							checkDoubleDeclaration($3, globalTable); 
@@ -184,6 +184,7 @@ subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = init
 						}
                    | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments();} IDENTIFIER arguments ';' 
 						{
+							outputFunctionName($6, $3); //cOuput
 							checkDoubleDeclaration($3, globalTable); 
 							insertSymbol(globalTable, $3, -1, 1); 
 							addArguments(globalTable,$3, arguments, argIndex); 
@@ -201,7 +202,7 @@ paramlist          : identlist ':' type
 					{insertSymbolsAndArguments($5);}
                    ;
 
-compoundstatement  : BEGINTOK optionalstatements ENDTOK
+compoundstatement  : BEGINTOK optionalstatements ENDTOK  //make main here?? only last begin end
                    ;
 
 optionalstatements : statementlist
@@ -236,7 +237,7 @@ exprlist           : expression					{initArguments(); addArg($1);}
 boolexpression	   : simpleexpr RELOP simpleexpr {checkEqual($1,$3);}
 				   ;
                    
-expressioprefixn         : simpleexpr	
+expression         : simpleexpr	
 		           | boolexpression
                    ;
 
@@ -268,6 +269,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
   
+  initializeOutput();
   initializeStringTable(argv[1]);
   initLexer(argv[1]);
   isGlobal = 1;
