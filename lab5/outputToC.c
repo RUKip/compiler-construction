@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "tempType.h"
 
 FILE *f;
 char* currentFunction;
@@ -27,7 +28,8 @@ void copyArguments(argument* new, argument* old) {
     }
 }
 
-void storeArgument(int type, char* name) {
+void storeArgument(tempType t, char* name) {
+    int type = t.type;
     if((argSize1-1) == argIndex1){
         argument* temp = malloc(argSize1*2*sizeof(argument));    
         copyArguments(temp, arguments1);
@@ -42,7 +44,8 @@ void storeArgument(int type, char* name) {
     argIndex1++;
 }
 
-void printType(int type){
+void printType(tempType t){
+	int type = t.type;
 	switch(type){	
 	case -1:
 		fprintf(f, "void ");	
@@ -65,23 +68,25 @@ void initializeOutput(){
 	f = fopen("Ouput.c", "w+");
 }
 
-void outputDeclaration(int type, char* name){
-	printType(type);
+void outputDeclaration(tempType t, char* name){
+	printType(t);
 	fprintf(f, "%s;\n", name);
 }
 
 void outputArgument(int type, char* ident, int isLastElement){
-	printType(type);
+	struct tempType t;
+	t.type = type;
+	printType(t);
 	fprintf(f, "%s", ident);
 	if (!isLastElement) {
 		fprintf(f, ", ");
 	}
 }
 
-void outputFunctionName(int type, char* name){
+void outputFunctionName(tempType t, char* name){
 	currentFunction = name;
 	fprintf(f, "\n");
-	printType(type);
+	printType(t);
 	fprintf(f, "%s (", name);
 	int i;
 	for (i = 0; i < argIndex1; i++) {
@@ -91,7 +96,7 @@ void outputFunctionName(int type, char* name){
 	free(arguments1);
 }
 
-void outputTempValue(int type){
+void outputTempValue(tempType type){
 	printType(type);
 	fprintf(f, "t%d = ", tempCount);
 	tempCount++;
@@ -153,6 +158,16 @@ void outputTempList(){
 	free(tempList);
 }
 
+void outputMulop(char* operator){
+	if(operator[0] == 'D' || operator[0] == 'd'){ //function can only return MULOP operator so no need for full matching
+		fprintf(f, " / ");
+	}else if(operator[0] == 'M' || operator[0] == 'm'){
+		fprintf(f, " %% ");
+	}else{
+		fprintf(f, " %s ", operator);
+	}
+}
+
 void outputMain(){
 	fprintf(f, "\nint main(void){\n");
 }
@@ -163,4 +178,8 @@ void outputEndMain(){
 
 int getLastTemp(){
 	return lastTemp;
+}
+
+void outputOldTemp(int temp) {
+	fprintf(f, "t%d", temp);
 }

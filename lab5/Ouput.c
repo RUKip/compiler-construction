@@ -4,36 +4,43 @@ int a;
 int gcd_recursive (int v, int u){
 int t0 = u ;
 int t1 = v ;
-int t2 = 0 ;
-int t3 = v ;
-int t4 = u ;
+int t2 = t0 % t1;
+int t3 = 0 ;
+int t4 = t2<> 0 THEN t3;
 int t5 = v ;
-int t6 = gcd_recursive (t3, t5);
-int t7 = u ;
-int t8 = v ;
-int t9 = t8 ;
-int t10 = v ;
-int t11 = gcd_recursive t10 }
+int t6 = u ;
+int t7 = v ;
+int t8 = t6 % t7;
+int t9 = gcd_recursive (t5, t8);
+int t10 = u ;
+int t11 = v ;
+int t12 = t10 +  t11;
+int t13 = t12 ;
+int t14 = v ;
+int t15 = + t14 ;
+}
  
 int gcd_iterative (int v, int u){
 int t;
-int t12 = v ;
-int t13 = 0 ;
-int t14 = u ;
-int t15 = v ;
-int t16 = t ;
-int t17 = v ;
-int t18 = u ;
+int t16 = v ;
+int t17 = 0 ;
+int t18 = t16<> 0 do t17;
+int t19 = u ;
+int t20 = v ;
+int t21 = t ;
+int t22 = v ;
+int t23 = t21 % t22;
+int t24 = u ;
 }
  
 int main(void){
-int t19 = a ;
-int t20 = b ;
-int t21 = a ;
-int t22 = b ;
-int t23 = gcd_recursive (t21, t22);
-int t24 = a ;
-int t25 = b ;
-int t26 = gcd_iterative (t24, t25);
+int t25 = a ;
+int t26 = b ;
+int t27 = a ;
+int t28 = b ;
+int t29 = gcd_recursive (t27, t28);
+int t30 = a ;
+int t31 = b ;
+int t32 = gcd_iterative (t30, t31);
 return 0; 
  }

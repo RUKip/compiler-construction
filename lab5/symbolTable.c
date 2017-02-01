@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "tempType.h"
 
 #define TABSIZE 97
 
@@ -101,7 +102,8 @@ void addArguments(bucket* hashtab, char *strtabEntry, int* arg, int size) {
   linearAddArguments(strtabEntry, hashtab[hash(strtabEntry)], arg, size);
 }
 
-void insertSymbol(bucket* hashtab, char *strtabEntry, int type, int isFunction) {
+void insertSymbol(bucket* hashtab, char *strtabEntry, tempType t, int isFunction) {
+  int type = t.type;
   unsigned int h = hash(strtabEntry);
   bucket nxt = hashtab[h];
   hashtab[h] = malloc(sizeof(struct bucket));

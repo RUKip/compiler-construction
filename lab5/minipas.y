@@ -6,6 +6,7 @@
 #include "lex.yy.c"
 #include "stack.h"
 #include "outputToC.h"
+#include "tempType.h"
 
 bucket* globalTable; 
 bucket* localTable;
@@ -27,17 +28,20 @@ int yyerror (char *msg) {
  * void			-1
  */
 
-int getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in the scope
+tempType getType(char *strtabEntry){ //Returns the type of an variable, does also check if it exists in the scope
 
   int typeLocal = lookupSymbol(localTable, strtabEntry);
+  struct tempType t;
   if(typeLocal == 0){ //linearSearch returns type and 0 if no type is found.
     if (lookupSymbol(globalTable, strtabEntry) == 0){
       printf("%s not declared or not accesible\n", strtabEntry);
       exit(-1);
     }
-    return lookupSymbol(globalTable, strtabEntry);
+    t.type = lookupSymbol(globalTable, strtabEntry);
+    return t;
   }
-  return typeLocal; 
+  t.type = typeLocal;
+  return t; 
 }
 
 void checkDoubleDeclaration(char *strtabEntry, bucket* table){ //does what it says
@@ -48,7 +52,9 @@ void checkDoubleDeclaration(char *strtabEntry, bucket* table){ //does what it sa
     exit(-1);
 }
 
-void checkEqual(int type1, int type2){ //check type function/assignment (real/int is accepted)
+void checkEqual(tempType t1, tempType t2){ //check type function/assignment (real/int is accepted)
+    int type1 = t1.type;
+    int type2 = t2.type;
     if(type1 == type2){
       return;
     }
@@ -59,7 +65,7 @@ void checkEqual(int type1, int type2){ //check type function/assignment (real/in
     exit(-1);
 }
 
-void insertSymbolsFromStack(int type) {
+void insertSymbolsFromStack(tempType t) {
 	bucket* currentTable;
 	  if (isGlobal) {
 		  currentTable = globalTable;
@@ -68,9 +74,9 @@ void insertSymbolsFromStack(int type) {
 	  }
 	while(!isEmpty()) {
 		char* ident = pop();
-		outputDeclaration(type, ident);//cOuput
+		outputDeclaration(t, ident);//cOuput
 		checkDoubleDeclaration(ident, currentTable);
-		insertSymbol(currentTable, ident, type, 0);
+		insertSymbol(currentTable, ident, t, 0);
 	}
 	  freeStack();
 }
@@ -85,7 +91,8 @@ void initArguments(){
 	arguments = malloc(argSize*sizeof(int)); 
 }
 
-void addArg(int arg) {
+void addArg(tempType t) {
+	int arg = t.type;
     if((argSize-1) == argIndex){
         int* temp = malloc(argSize*2*sizeof(int));    
         copy(temp, arguments);
@@ -97,7 +104,7 @@ void addArg(int arg) {
     argIndex++;
 }
 
-void insertSymbolsAndArguments(int type){
+void insertSymbolsAndArguments(tempType t){
 	  bucket* currentTable;
 	  if (isGlobal) {
 		currentTable = globalTable;
@@ -108,10 +115,10 @@ void insertSymbolsAndArguments(int type){
 	
 	  while(!isEmpty()) {
 		char* ident = pop();
-		storeArgument(type, ident);//cOuput
+		storeArgument(t, ident);//cOuput
 		checkDoubleDeclaration(ident, currentTable);
-		insertSymbol(currentTable, ident, type, 0);
-		addArg(type);
+		insertSymbol(currentTable, ident, t, 0);
+		addArg(t);
 	  }
 	
 	  freeStack();
@@ -120,7 +127,7 @@ void insertSymbolsAndArguments(int type){
 %}
 
 %union {
-  int type;
+  struct tempType tempType;
   char *strtabptr;
 }
 
@@ -129,8 +136,8 @@ void insertSymbolsAndArguments(int type){
        RELOP MULOP READLN WRITELN
 
        
-%type <type> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL boolexpression
-%type <strtabptr> IDENTIFIER variable sign
+%type <tempType> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL boolexpression
+%type <strtabptr> IDENTIFIER variable sign multop relationop
        
 %%
 
@@ -160,7 +167,7 @@ declarations       : declarations VAR  identlist ':' type ';'
                    ;
 
 type               : standardtype
-                   | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype {$$ = $8 + 2;} 
+                   | ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype {struct tempType t = $8; t.type + 2; $$ = t;} 
                    ;
 
 standardtype       : INTEGER 
@@ -186,9 +193,10 @@ subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = init
 						}
                    | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/} IDENTIFIER arguments ';' 
 						{
-							outputFunctionName(-1, $3); //cOuput
+							struct tempType t; t.type = -1; //cOuput
+							outputFunctionName(t, $3); //cOuput
 							checkDoubleDeclaration($3, globalTable); 
-							insertSymbol(globalTable, $3, -1, 1); 
+							insertSymbol(globalTable, $3, t, 1); 
 							addArguments(globalTable,$3, arguments, argIndex); 
 							free(arguments);
 						}
@@ -215,11 +223,11 @@ statementlist      : statement
                    | statementlist ';' statement
                    ;
 
-statement          : variable ASSIGN expression {checkEqual(getType($1),$3);} 
+statement          : variable ASSIGN expression {checkEqual(getType($1),$3);}  //TODO
                    | procstatement
                    | compoundstatement
-                   | IF expression THEN statement ELSE statement
-                   | WHILE expression DO statement
+                   | IF expression THEN statement ELSE statement //TODO
+                   | WHILE expression DO statement //TODO
                    ;
 
 variable           : IDENTIFIER
@@ -236,37 +244,63 @@ exprlist           : expression					{initArguments(); addArg($1); initTempList()
                    | exprlist ',' expression	{addArg($3); storeToTempList();/*cOutput*/}
                    ;
 
-boolexpression	   : simpleexpr RELOP simpleexpr {checkEqual($1,$3);}
+boolexpression	   : simpleexpr relationop simpleexpr
+						{
+							checkEqual($1,$3); 
+							outputTempValue($1); outputOldTemp($1.temp); outputString($2); outputOldTemp($3.temp); outputEnd(); //cOuput 
+							struct tempType t = $1; t.temp = getLastTemp(); $$ = t; //cOuput
+						}
+				   ;
+				   
+relationop         : RELOP {$$ = yytext;}
 				   ;
                    
 expression         : simpleexpr	
-		   | boolexpression
+				   | boolexpression
                    ;
 
 simpleexpr         : term
-                   | sign term			{$$ = $2; outputTempValue($2); outputString($1); outputLastTemp();/*cOutput*/ } 
-                   | simpleexpr '+' term 	{$$ = $1; checkEqual($1,$3);}
-                   | simpleexpr '-' term	{$$ = $1; checkEqual($1,$3);}
+                   | sign term				{outputTempValue($2); outputString($1); outputLastTemp(); outputEnd(); struct tempType t = $2; t.temp = getLastTemp(); $$ = t;} //cOuput
+                   | simpleexpr '+' term
+						{
+							checkEqual($1,$3); 
+							outputTempValue($1); outputOldTemp($1.temp); outputString(" + "); outputOldTemp($3.temp); outputEnd(); //cOuput
+							struct tempType t = $1; t.temp = getLastTemp(); $$ = t; //cOuput
+						}
+                   | simpleexpr '-' term	
+						{
+							checkEqual($1,$3); 
+							outputTempValue($1); outputOldTemp($1.temp); outputString(" - "); outputOldTemp($3.temp); outputEnd(); //cOuput
+							struct tempType t = $1; t.temp = getLastTemp(); $$ = t; //cOuput
+						}
                    ;
 
-sign               : '+' 
-                   | '-' 
+sign               : '+' {$$ = "+";}
+                   | '-' {$$ = "-";}
                    ;
 
 term               : factor
-                   | term MULOP {/*outputTempValue($1); x1 = getLastTemp(); outputLastTemp(); y1 = yytext; outputString(yytext);*/ /*cOuput*/} factor {$$ = $1; checkEqual($1,$4); /*outputString("t%d ",x1); outputString(y1); outputEnd();*/ }//cOuput
+                   | term multop factor 
+						{
+							checkEqual($1,$3); 
+							outputTempValue($1); outputOldTemp($1.temp); outputMulop($2); outputOldTemp($3.temp); outputEnd(); //cOuput
+							struct tempType t = $1; t.temp = getLastTemp(); $$ = t; //cOuput
+						}
                    ;
 
-factor             : IDENTIFIER 					{$$ = getType($1); outputTempValue(getType($1)); outputString($1); outputEnd();/* cOutput*/ }
-                   | IDENTIFIER '(' exprlist ')' 		{
-								$$=getType($1); 
-								if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);}
-								checkArguments(globalTable, $1, arguments, argIndex);
-								free(arguments);
-								outputTempValue(getType($1)); outputString($1); outputTempList(); outputEnd(); //cOutput
-								} 
-                   | NUMBER							{$$ = $1; outputTempValue($1); outputString(yytext); outputEnd();/*cOutput*/}
-                   | '(' expression ')'				{$$ = $2; outputTempValue($2); outputLastTemp(); outputEnd(); /*cOutput*/}
+multop		   : MULOP {$$=yytext;}                  
+                   
+factor             : IDENTIFIER 					{outputTempValue(getType($1)); outputString($1); outputEnd(); struct tempType t; t = getType($1); t.temp = getLastTemp(); $$ = t;} //cOuput 
+                   | IDENTIFIER '(' exprlist ')' 		
+						{
+							if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);}
+							checkArguments(globalTable, $1, arguments, argIndex);
+							free(arguments);
+							outputTempValue(getType($1)); outputString($1); outputTempList(); outputEnd(); //cOutput
+							struct tempType t; t = getType($1); t.temp = getLastTemp(); $$ = t; //cOuput
+						} 
+                   | NUMBER							{outputTempValue($1); outputString(yytext); outputEnd(); struct tempType t = $1; t.temp = getLastTemp(); $$ = t;} //cOuput 
+                   | '(' expression ')'				{outputTempValue($2); outputLastTemp(); outputEnd(); struct tempType t = $2; t.temp = getLastTemp(); $$ = t;} //cOuput 
                    ;
 
 %%

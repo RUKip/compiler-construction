@@ -64,39 +64,40 @@ Grammar
    39 exprlist: expression
    40         | exprlist ',' expression
 
-   41 boolexpression: simpleexpr RELOP simpleexpr
+   41 boolexpression: simpleexpr relationop simpleexpr
 
-   42 expression: simpleexpr
-   43           | boolexpression
+   42 relationop: RELOP
 
-   44 simpleexpr: term
-   45           | sign term
-   46           | simpleexpr '+' term
-   47           | simpleexpr '-' term
+   43 expression: simpleexpr
+   44           | boolexpression
 
-   48 sign: '+'
-   49     | '-'
+   45 simpleexpr: term
+   46           | sign term
+   47           | simpleexpr '+' term
+   48           | simpleexpr '-' term
 
-   50 term: factor
+   49 sign: '+'
+   50     | '-'
 
-   51 $@5: %empty
+   51 term: factor
+   52     | term multop factor
 
-   52 term: term MULOP $@5 factor
+   53 multop: MULOP
 
-   53 factor: IDENTIFIER
-   54       | IDENTIFIER '(' exprlist ')'
-   55       | NUMBER
-   56       | '(' expression ')'
+   54 factor: IDENTIFIER
+   55       | IDENTIFIER '(' exprlist ')'
+   56       | NUMBER
+   57       | '(' expression ')'
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'(' (40) 3 19 36 37 38 54 56
-')' (41) 3 19 36 37 38 54 56
-'+' (43) 46 48
+'(' (40) 3 19 36 37 38 55 57
+')' (41) 3 19 36 37 38 55 57
+'+' (43) 47 49
 ',' (44) 5 40
-'-' (45) 47 49
+'-' (45) 48 50
 '.' (46) 3
 ':' (58) 6 16 21 22
 ';' (59) 3 6 12 16 18 22 27
@@ -104,11 +105,11 @@ $end (0) 0
 ']' (93) 9 34
 error (256)
 PROGRAM (258) 3
-IDENTIFIER (259) 3 4 5 16 18 33 34 35 36 53 54
+IDENTIFIER (259) 3 4 5 16 18 33 34 35 36 54 55
 VAR (260) 6
 ARRAY (261) 9
 RANGE (262) 9
-NUMBER (263) 9 55
+NUMBER (263) 9 56
 OF (264) 9
 INTEGER (265) 10
 REAL (266) 11
@@ -122,8 +123,8 @@ THEN (273) 31
 ELSE (274) 31
 WHILE (275) 32
 DO (276) 32
-RELOP (277) 41
-MULOP (278) 52
+RELOP (277) 42
+MULOP (278) 53
 READLN (279) 38
 WRITELN (280) 37
 
@@ -173,21 +174,23 @@ variable (55)
 procstatement (56)
     on left: 35 36 37 38, on right: 29
 exprlist (57)
-    on left: 39 40, on right: 36 37 38 40 54
+    on left: 39 40, on right: 36 37 38 40 55
 boolexpression (58)
-    on left: 41, on right: 43
-expression (59)
-    on left: 42 43, on right: 28 31 32 34 39 40 56
-simpleexpr (60)
-    on left: 44 45 46 47, on right: 41 42 46 47
-sign (61)
-    on left: 48 49, on right: 45
-term (62)
-    on left: 50 52, on right: 44 45 46 47 52
-$@5 (63)
-    on left: 51, on right: 52
-factor (64)
-    on left: 53 54 55 56, on right: 50 52
+    on left: 41, on right: 44
+relationop (59)
+    on left: 42, on right: 41
+expression (60)
+    on left: 43 44, on right: 28 31 32 34 39 40 57
+simpleexpr (61)
+    on left: 45 46 47 48, on right: 41 43 47 48
+sign (62)
+    on left: 49 50, on right: 46
+term (63)
+    on left: 51 52, on right: 45 46 47 48 52
+multop (64)
+    on left: 53, on right: 52
+factor (65)
+    on left: 54 55 56 57, on right: 51 52
 
 
 State 0
@@ -708,24 +711,24 @@ State 55
 
 State 56
 
-   53 factor: IDENTIFIER .
-   54       | IDENTIFIER . '(' exprlist ')'
+   54 factor: IDENTIFIER .
+   55       | IDENTIFIER . '(' exprlist ')'
 
     '('  shift, and go to state 81
 
-    $default  reduce using rule 53 (factor)
+    $default  reduce using rule 54 (factor)
 
 
 State 57
 
-   55 factor: NUMBER .
+   56 factor: NUMBER .
 
-    $default  reduce using rule 55 (factor)
+    $default  reduce using rule 56 (factor)
 
 
 State 58
 
-   56 factor: '(' . expression ')'
+   57 factor: '(' . expression ')'
 
     IDENTIFIER  shift, and go to state 56
     NUMBER      shift, and go to state 57
@@ -743,23 +746,23 @@ State 58
 
 State 59
 
-   48 sign: '+' .
-
-    $default  reduce using rule 48 (sign)
-
-
-State 60
-
-   49 sign: '-' .
+   49 sign: '+' .
 
     $default  reduce using rule 49 (sign)
 
 
+State 60
+
+   50 sign: '-' .
+
+    $default  reduce using rule 50 (sign)
+
+
 State 61
 
-   43 expression: boolexpression .
+   44 expression: boolexpression .
 
-    $default  reduce using rule 43 (expression)
+    $default  reduce using rule 44 (expression)
 
 
 State 62
@@ -771,52 +774,56 @@ State 62
 
 State 63
 
-   41 boolexpression: simpleexpr . RELOP simpleexpr
-   42 expression: simpleexpr .
-   46 simpleexpr: simpleexpr . '+' term
-   47           | simpleexpr . '-' term
+   41 boolexpression: simpleexpr . relationop simpleexpr
+   43 expression: simpleexpr .
+   47 simpleexpr: simpleexpr . '+' term
+   48           | simpleexpr . '-' term
 
     RELOP  shift, and go to state 84
     '+'    shift, and go to state 85
     '-'    shift, and go to state 86
 
-    $default  reduce using rule 42 (expression)
+    $default  reduce using rule 43 (expression)
+
+    relationop  go to state 87
 
 
 State 64
 
-   45 simpleexpr: sign . term
+   46 simpleexpr: sign . term
 
     IDENTIFIER  shift, and go to state 56
     NUMBER      shift, and go to state 57
     '('         shift, and go to state 58
 
-    term    go to state 87
+    term    go to state 88
     factor  go to state 66
 
 
 State 65
 
-   44 simpleexpr: term .
-   52 term: term . MULOP $@5 factor
+   45 simpleexpr: term .
+   52 term: term . multop factor
 
-    MULOP  shift, and go to state 88
+    MULOP  shift, and go to state 89
 
-    $default  reduce using rule 44 (simpleexpr)
+    $default  reduce using rule 45 (simpleexpr)
+
+    multop  go to state 90
 
 
 State 66
 
-   50 term: factor .
+   51 term: factor .
 
-    $default  reduce using rule 50 (term)
+    $default  reduce using rule 51 (term)
 
 
 State 67
 
    32 statement: WHILE expression . DO statement
 
-    DO  shift, and go to state 89
+    DO  shift, and go to state 91
 
 
 State 68
@@ -829,7 +836,7 @@ State 68
     '+'         shift, and go to state 59
     '-'         shift, and go to state 60
 
-    exprlist        go to state 90
+    exprlist        go to state 92
     boolexpression  go to state 61
     expression      go to state 79
     simpleexpr      go to state 63
@@ -848,7 +855,7 @@ State 69
     '+'         shift, and go to state 59
     '-'         shift, and go to state 60
 
-    exprlist        go to state 91
+    exprlist        go to state 93
     boolexpression  go to state 61
     expression      go to state 79
     simpleexpr      go to state 63
@@ -876,7 +883,7 @@ State 71
     WRITELN     shift, and go to state 40
 
     compoundstatement  go to state 41
-    statement          go to state 92
+    statement          go to state 94
     variable           go to state 45
     procstatement      go to state 46
 
@@ -892,7 +899,7 @@ State 72
     '-'         shift, and go to state 60
 
     boolexpression  go to state 61
-    expression      go to state 93
+    expression      go to state 95
     simpleexpr      go to state 63
     sign            go to state 64
     term            go to state 65
@@ -903,7 +910,7 @@ State 73
 
     9 type: ARRAY '[' NUMBER . RANGE NUMBER ']' OF standardtype
 
-    RANGE  shift, and go to state 94
+    RANGE  shift, and go to state 96
 
 
 State 74
@@ -912,7 +919,7 @@ State 74
    21 paramlist: identlist . ':' type
 
     ','  shift, and go to state 9
-    ':'  shift, and go to state 95
+    ':'  shift, and go to state 97
 
 
 State 75
@@ -920,8 +927,8 @@ State 75
    19 arguments: '(' paramlist . ')'
    22 paramlist: paramlist . ';' identlist ':' type
 
-    ')'  shift, and go to state 96
-    ';'  shift, and go to state 97
+    ')'  shift, and go to state 98
+    ';'  shift, and go to state 99
 
 
 State 76
@@ -931,7 +938,7 @@ State 76
     INTEGER  shift, and go to state 30
     REAL     shift, and go to state 31
 
-    standardtype  go to state 98
+    standardtype  go to state 100
 
 
 State 77
@@ -946,8 +953,8 @@ State 78
    36 procstatement: IDENTIFIER '(' exprlist . ')'
    40 exprlist: exprlist . ',' expression
 
-    ')'  shift, and go to state 99
-    ','  shift, and go to state 100
+    ')'  shift, and go to state 101
+    ','  shift, and go to state 102
 
 
 State 79
@@ -961,12 +968,12 @@ State 80
 
    34 variable: IDENTIFIER '[' expression . ']'
 
-    ']'  shift, and go to state 101
+    ']'  shift, and go to state 103
 
 
 State 81
 
-   54 factor: IDENTIFIER '(' . exprlist ')'
+   55 factor: IDENTIFIER '(' . exprlist ')'
 
     IDENTIFIER  shift, and go to state 56
     NUMBER      shift, and go to state 57
@@ -974,7 +981,7 @@ State 81
     '+'         shift, and go to state 59
     '-'         shift, and go to state 60
 
-    exprlist        go to state 102
+    exprlist        go to state 104
     boolexpression  go to state 61
     expression      go to state 79
     simpleexpr      go to state 63
@@ -985,9 +992,9 @@ State 81
 
 State 82
 
-   56 factor: '(' expression . ')'
+   57 factor: '(' expression . ')'
 
-    ')'  shift, and go to state 103
+    ')'  shift, and go to state 105
 
 
 State 83
@@ -1002,42 +1009,21 @@ State 83
     WRITELN     shift, and go to state 40
 
     compoundstatement  go to state 41
-    statement          go to state 104
+    statement          go to state 106
     variable           go to state 45
     procstatement      go to state 46
 
 
 State 84
 
-   41 boolexpression: simpleexpr RELOP . simpleexpr
+   42 relationop: RELOP .
 
-    IDENTIFIER  shift, and go to state 56
-    NUMBER      shift, and go to state 57
-    '('         shift, and go to state 58
-    '+'         shift, and go to state 59
-    '-'         shift, and go to state 60
-
-    simpleexpr  go to state 105
-    sign        go to state 64
-    term        go to state 65
-    factor      go to state 66
+    $default  reduce using rule 42 (relationop)
 
 
 State 85
 
-   46 simpleexpr: simpleexpr '+' . term
-
-    IDENTIFIER  shift, and go to state 56
-    NUMBER      shift, and go to state 57
-    '('         shift, and go to state 58
-
-    term    go to state 106
-    factor  go to state 66
-
-
-State 86
-
-   47 simpleexpr: simpleexpr '-' . term
+   47 simpleexpr: simpleexpr '+' . term
 
     IDENTIFIER  shift, and go to state 56
     NUMBER      shift, and go to state 57
@@ -1047,26 +1033,65 @@ State 86
     factor  go to state 66
 
 
+State 86
+
+   48 simpleexpr: simpleexpr '-' . term
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+
+    term    go to state 108
+    factor  go to state 66
+
+
 State 87
 
-   45 simpleexpr: sign term .
-   52 term: term . MULOP $@5 factor
+   41 boolexpression: simpleexpr relationop . simpleexpr
 
-    MULOP  shift, and go to state 88
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+    '+'         shift, and go to state 59
+    '-'         shift, and go to state 60
 
-    $default  reduce using rule 45 (simpleexpr)
+    simpleexpr  go to state 109
+    sign        go to state 64
+    term        go to state 65
+    factor      go to state 66
 
 
 State 88
 
-   52 term: term MULOP . $@5 factor
+   46 simpleexpr: sign term .
+   52 term: term . multop factor
 
-    $default  reduce using rule 51 ($@5)
+    MULOP  shift, and go to state 89
 
-    $@5  go to state 108
+    $default  reduce using rule 46 (simpleexpr)
+
+    multop  go to state 90
 
 
 State 89
+
+   53 multop: MULOP .
+
+    $default  reduce using rule 53 (multop)
+
+
+State 90
+
+   52 term: term multop . factor
+
+    IDENTIFIER  shift, and go to state 56
+    NUMBER      shift, and go to state 57
+    '('         shift, and go to state 58
+
+    factor  go to state 110
+
+
+State 91
 
    32 statement: WHILE expression DO . statement
 
@@ -1078,51 +1103,51 @@ State 89
     WRITELN     shift, and go to state 40
 
     compoundstatement  go to state 41
-    statement          go to state 109
+    statement          go to state 111
     variable           go to state 45
     procstatement      go to state 46
 
 
-State 90
+State 92
 
    38 procstatement: READLN '(' exprlist . ')'
    40 exprlist: exprlist . ',' expression
 
-    ')'  shift, and go to state 110
-    ','  shift, and go to state 100
+    ')'  shift, and go to state 112
+    ','  shift, and go to state 102
 
 
-State 91
+State 93
 
    37 procstatement: WRITELN '(' exprlist . ')'
    40 exprlist: exprlist . ',' expression
 
-    ')'  shift, and go to state 111
-    ','  shift, and go to state 100
+    ')'  shift, and go to state 113
+    ','  shift, and go to state 102
 
 
-State 92
+State 94
 
    27 statementlist: statementlist ';' statement .
 
     $default  reduce using rule 27 (statementlist)
 
 
-State 93
+State 95
 
    28 statement: variable ASSIGN expression .
 
     $default  reduce using rule 28 (statement)
 
 
-State 94
+State 96
 
     9 type: ARRAY '[' NUMBER RANGE . NUMBER ']' OF standardtype
 
-    NUMBER  shift, and go to state 112
+    NUMBER  shift, and go to state 114
 
 
-State 95
+State 97
 
    21 paramlist: identlist ':' . type
 
@@ -1130,41 +1155,41 @@ State 95
     INTEGER  shift, and go to state 30
     REAL     shift, and go to state 31
 
-    type          go to state 113
+    type          go to state 115
     standardtype  go to state 33
 
 
-State 96
+State 98
 
    19 arguments: '(' paramlist ')' .
 
     $default  reduce using rule 19 (arguments)
 
 
-State 97
+State 99
 
    22 paramlist: paramlist ';' . identlist ':' type
 
     IDENTIFIER  shift, and go to state 6
 
-    identlist  go to state 114
+    identlist  go to state 116
 
 
-State 98
+State 100
 
    16 subprogheading: FUNCTION $@3 IDENTIFIER arguments ':' standardtype . ';'
 
-    ';'  shift, and go to state 115
+    ';'  shift, and go to state 117
 
 
-State 99
+State 101
 
    36 procstatement: IDENTIFIER '(' exprlist ')' .
 
     $default  reduce using rule 36 (procstatement)
 
 
-State 100
+State 102
 
    40 exprlist: exprlist ',' . expression
 
@@ -1175,48 +1200,72 @@ State 100
     '-'         shift, and go to state 60
 
     boolexpression  go to state 61
-    expression      go to state 116
+    expression      go to state 118
     simpleexpr      go to state 63
     sign            go to state 64
     term            go to state 65
     factor          go to state 66
 
 
-State 101
+State 103
 
    34 variable: IDENTIFIER '[' expression ']' .
 
     $default  reduce using rule 34 (variable)
 
 
-State 102
-
-   40 exprlist: exprlist . ',' expression
-   54 factor: IDENTIFIER '(' exprlist . ')'
-
-    ')'  shift, and go to state 117
-    ','  shift, and go to state 100
-
-
-State 103
-
-   56 factor: '(' expression ')' .
-
-    $default  reduce using rule 56 (factor)
-
-
 State 104
 
-   31 statement: IF expression THEN statement . ELSE statement
+   40 exprlist: exprlist . ',' expression
+   55 factor: IDENTIFIER '(' exprlist . ')'
 
-    ELSE  shift, and go to state 118
+    ')'  shift, and go to state 119
+    ','  shift, and go to state 102
 
 
 State 105
 
-   41 boolexpression: simpleexpr RELOP simpleexpr .
-   46 simpleexpr: simpleexpr . '+' term
-   47           | simpleexpr . '-' term
+   57 factor: '(' expression ')' .
+
+    $default  reduce using rule 57 (factor)
+
+
+State 106
+
+   31 statement: IF expression THEN statement . ELSE statement
+
+    ELSE  shift, and go to state 120
+
+
+State 107
+
+   47 simpleexpr: simpleexpr '+' term .
+   52 term: term . multop factor
+
+    MULOP  shift, and go to state 89
+
+    $default  reduce using rule 47 (simpleexpr)
+
+    multop  go to state 90
+
+
+State 108
+
+   48 simpleexpr: simpleexpr '-' term .
+   52 term: term . multop factor
+
+    MULOP  shift, and go to state 89
+
+    $default  reduce using rule 48 (simpleexpr)
+
+    multop  go to state 90
+
+
+State 109
+
+   41 boolexpression: simpleexpr relationop simpleexpr .
+   47 simpleexpr: simpleexpr . '+' term
+   48           | simpleexpr . '-' term
 
     '+'  shift, and go to state 85
     '-'  shift, and go to state 86
@@ -1224,103 +1273,79 @@ State 105
     $default  reduce using rule 41 (boolexpression)
 
 
-State 106
+State 110
 
-   46 simpleexpr: simpleexpr '+' term .
-   52 term: term . MULOP $@5 factor
+   52 term: term multop factor .
 
-    MULOP  shift, and go to state 88
-
-    $default  reduce using rule 46 (simpleexpr)
+    $default  reduce using rule 52 (term)
 
 
-State 107
-
-   47 simpleexpr: simpleexpr '-' term .
-   52 term: term . MULOP $@5 factor
-
-    MULOP  shift, and go to state 88
-
-    $default  reduce using rule 47 (simpleexpr)
-
-
-State 108
-
-   52 term: term MULOP $@5 . factor
-
-    IDENTIFIER  shift, and go to state 56
-    NUMBER      shift, and go to state 57
-    '('         shift, and go to state 58
-
-    factor  go to state 119
-
-
-State 109
+State 111
 
    32 statement: WHILE expression DO statement .
 
     $default  reduce using rule 32 (statement)
 
 
-State 110
+State 112
 
    38 procstatement: READLN '(' exprlist ')' .
 
     $default  reduce using rule 38 (procstatement)
 
 
-State 111
+State 113
 
    37 procstatement: WRITELN '(' exprlist ')' .
 
     $default  reduce using rule 37 (procstatement)
 
 
-State 112
+State 114
 
     9 type: ARRAY '[' NUMBER RANGE NUMBER . ']' OF standardtype
 
-    ']'  shift, and go to state 120
+    ']'  shift, and go to state 121
 
 
-State 113
+State 115
 
    21 paramlist: identlist ':' type .
 
     $default  reduce using rule 21 (paramlist)
 
 
-State 114
+State 116
 
     5 identlist: identlist . ',' IDENTIFIER
    22 paramlist: paramlist ';' identlist . ':' type
 
     ','  shift, and go to state 9
-    ':'  shift, and go to state 121
+    ':'  shift, and go to state 122
 
 
-State 115
+State 117
 
    16 subprogheading: FUNCTION $@3 IDENTIFIER arguments ':' standardtype ';' .
 
     $default  reduce using rule 16 (subprogheading)
 
 
-State 116
+State 118
 
    40 exprlist: exprlist ',' expression .
 
     $default  reduce using rule 40 (exprlist)
 
 
-State 117
+State 119
 
-   54 factor: IDENTIFIER '(' exprlist ')' .
+   55 factor: IDENTIFIER '(' exprlist ')' .
 
-    $default  reduce using rule 54 (factor)
+    $default  reduce using rule 55 (factor)
 
 
-State 118
+State 120
 
    31 statement: IF expression THEN statement ELSE . statement
 
@@ -1332,26 +1357,19 @@ State 118
     WRITELN     shift, and go to state 40
 
     compoundstatement  go to state 41
-    statement          go to state 122
+    statement          go to state 123
     variable           go to state 45
     procstatement      go to state 46
 
 
-State 119
-
-   52 term: term MULOP $@5 factor .
-
-    $default  reduce using rule 52 (term)
-
-
-State 120
+State 121
 
     9 type: ARRAY '[' NUMBER RANGE NUMBER ']' . OF standardtype
 
-    OF  shift, and go to state 123
+    OF  shift, and go to state 124
 
 
-State 121
+State 122
 
    22 paramlist: paramlist ';' identlist ':' . type
 
@@ -1359,35 +1377,35 @@ State 121
     INTEGER  shift, and go to state 30
     REAL     shift, and go to state 31
 
-    type          go to state 124
+    type          go to state 125
     standardtype  go to state 33
 
 
-State 122
+State 123
 
    31 statement: IF expression THEN statement ELSE statement .
 
     $default  reduce using rule 31 (statement)
 
 
-State 123
+State 124
 
     9 type: ARRAY '[' NUMBER RANGE NUMBER ']' OF . standardtype
 
     INTEGER  shift, and go to state 30
     REAL     shift, and go to state 31
 
-    standardtype  go to state 125
+    standardtype  go to state 126
 
 
-State 124
+State 125
 
    22 paramlist: paramlist ';' identlist ':' type .
 
     $default  reduce using rule 22 (paramlist)
 
 
-State 125
+State 126
 
     9 type: ARRAY '[' NUMBER RANGE NUMBER ']' OF standardtype .
 
