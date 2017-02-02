@@ -5,6 +5,7 @@
 FILE *f;
 char* currentFunction;
 int tempCount = 0;
+int labelCount = 0;
 int lastTemp;
 
 typedef struct argument {
@@ -181,5 +182,14 @@ int getLastTemp(){
 }
 
 void outputOldTemp(int temp) {
-	fprintf(f, "t%d", temp);
+	fprintf(f, "t%d ", temp);
+}
+
+int getLabel(){
+	labelCount++;
+	return labelCount;
+}
+
+void outputLabel(int cnt){
+	fprintf(f, "lab%d", cnt);
 }

@@ -127,8 +127,9 @@ void insertSymbolsAndArguments(tempType t){
 %}
 
 %union {
-  struct tempType tempType;
+  struct tempType tempType; //cOutput
   char *strtabptr;
+  int label; //cOutput
 }
 
 %token PROGRAM IDENTIFIER VAR ARRAY RANGE NUMBER OF INTEGER REAL
@@ -137,7 +138,8 @@ void insertSymbolsAndArguments(tempType t){
 
        
 %type <tempType> NUMBER expression factor term simpleexpr type standardtype INTEGER REAL boolexpression
-%type <strtabptr> IDENTIFIER variable sign multop relationop
+%type <strtabptr> IDENTIFIER variable sign multop relationop ASSIGN subprogheading
+%type <label> ifrule thenrule whilerule dorule
        
 %%
 
@@ -178,7 +180,11 @@ subprogdecls       : subprogdecls subprogdecl ';'
                    | /* epsilon */
                    ;
 
-subprogdecl        : subprogheading declarations compoundstatement {outputString("}\n");}//cOutput
+subprogdecl        : subprogheading declarations compoundstatement 
+			{
+				outputString("return "); outputString($1); outputEnd(); 
+				outputString("}\n");
+			}//cOutput
                    ;
 
 subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/} IDENTIFIER arguments ':' standardtype ';' 
@@ -190,6 +196,7 @@ subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = init
 							insertSymbol(globalTable, $3, $6, 1); 
 							addArguments(globalTable,$3, arguments, argIndex); 
 							free(arguments);
+							$$ = $3;
 						}
                    | PROCEDURE {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/} IDENTIFIER arguments ';' 
 						{
@@ -199,6 +206,7 @@ subprogheading     : FUNCTION {isGlobal = 0; free(localTable); localTable = init
 							insertSymbol(globalTable, $3, t, 1); 
 							addArguments(globalTable,$3, arguments, argIndex); 
 							free(arguments);
+							$$ = "";
 						}
                    ;
 
@@ -212,7 +220,7 @@ paramlist          : identlist ':' type
 					{insertSymbolsAndArguments($5);}
                    ;
 
-compoundstatement  : BEGINTOK optionalstatements ENDTOK  //make main here?? only last begin end
+compoundstatement  : BEGINTOK optionalstatements ENDTOK
                    ;
 
 optionalstatements : statementlist
@@ -223,12 +231,49 @@ statementlist      : statement
                    | statementlist ';' statement
                    ;
 
-statement          : variable ASSIGN expression {checkEqual(getType($1),$3);}  //TODO
+statement          : variable ASSIGN expression 
+			{
+				checkEqual(getType($1),$3);
+				outputString($1); outputString(" = "); outputOldTemp($3.temp); outputEnd(); //cOuput
+			}  
                    | procstatement
                    | compoundstatement
-                   | IF expression THEN statement ELSE statement //TODO
-                   | WHILE expression DO statement //TODO
+                   | ifrule expression thenrule 
+			{
+				outputString("if(!"); outputOldTemp($2.temp); outputString(")"); outputString("goto "); outputLabel($1); outputEnd(); //cOuput
+			}
+			statement 
+			{
+				outputString("goto "); outputLabel($3); outputEnd(); //cOuput
+				outputLabel($1); outputString(": "); outputEnd(); //cOuput
+			}
+			ELSE statement 
+			{
+				outputLabel($3); outputString(": "); outputEnd(); //cOuput
+			} 
+                   | whilerule expression dorule 
+			{
+				outputLabel($1); outputString(": "); outputEnd(); //cOutput
+				outputString("if(!"); outputOldTemp($2.temp); outputString(")"); outputString("goto "); outputLabel($3); outputEnd(); //cOutput
+			} 
+			statement 
+			{
+				outputString("goto "); outputLabel($1); outputEnd(); //cOutput
+				outputLabel($3); outputString(": "); outputEnd(); //cOutput
+			} 
                    ;
+                   
+ifrule		   : IF {$$ = getLabel();} //cOutput
+		   ;
+		   
+thenrule	   : THEN {$$ = getLabel();} //cOutput
+		   ;
+		   
+whilerule	   : WHILE {$$ = getLabel();} //cOutput
+		   ;
+		  
+dorule		   : DO {$$ = getLabel();} //cOutput
+		   ;
 
 variable           : IDENTIFIER
                    | IDENTIFIER '[' expression ']'
@@ -236,12 +281,12 @@ variable           : IDENTIFIER
 
 procstatement      : IDENTIFIER
                    | IDENTIFIER '(' exprlist ')'	{getType($1); if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);} checkArguments(globalTable, $1, arguments, argIndex); free(arguments);}
-                   | WRITELN '(' exprlist ')' 		{free(arguments);} //nothing has to happen except writln
+                   | WRITELN '(' exprlist ')' 		{free(arguments); outputString("printf("); outputString(")"); outputEnd();} //nothing has to happen except writln
                    | READLN '(' exprlist ')'		{free(arguments);} //nothing has to happen except readln
                    ;
 
 exprlist           : expression					{initArguments(); addArg($1); initTempList(); storeToTempList();/*cOutput*/}
-                   | exprlist ',' expression	{addArg($3); storeToTempList();/*cOutput*/}
+                   | exprlist ',' expression			{addArg($3); storeToTempList();/*cOutput*/}
                    ;
 
 boolexpression	   : simpleexpr relationop simpleexpr
@@ -252,7 +297,7 @@ boolexpression	   : simpleexpr relationop simpleexpr
 						}
 				   ;
 				   
-relationop         : RELOP {$$ = yytext;}
+relationop         : RELOP {char *tmp = malloc((strlen(yytext) + 1) * sizeof(char)); strcpy(tmp, yytext); $$ = tmp;} //to fix THEN/DO from cOutput
 				   ;
                    
 expression         : simpleexpr	

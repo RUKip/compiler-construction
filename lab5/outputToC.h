@@ -5,5 +5,7 @@ void outputDeclaration(tempType type, char* name);
 void initializeOutput();
 void outputFunctionName(tempType type, char* name);
 void storeArgument(tempType type, char* name);
+void outputString(char* str);
+void outputEnd();
 
 #endif
