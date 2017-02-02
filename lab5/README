@@ -1,0 +1,11 @@
+
+We choice to make an outputToC.c file which is responsible for the conversion and outputting to file, this way its more modular and easy to maintain.
+
+We made the choice to convert and check the pascal code. By using/extending the existing parser. This choice was made because the serie option gave many errors which we didn't know to fix at that time. This has also the effect that when there are syntax errors there is some code generated already, however this we find an advantage when we want to bug fix.
+
+We also made the choice to go for a struct (of two ints) instead of our previous single int because this way we can return our temp values of variables/expressions etc. without needing extensive and complicated data structures. 
+
+We've chosen to make an outputString(char* string) function which is the function that only outputs a given string to file, a named function like outputEnd() does more then only output the string(some book keeping). 
+
+As an extra we choice to indent because it looks cool and makes it more readable, a little drawback is that this added a bit more code but not significant. 
+
