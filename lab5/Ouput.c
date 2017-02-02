@@ -53,13 +53,15 @@ return  gcd_iterative ;
 int main(void){
 int t25 = a ;
 int t26 = b ;
-printf( int t27 = a ;
+scanf( " %d %d \n" , a, b) ;
+int t27 = a ;
 int t28 = b ;
 int t29 = gcd_recursive (t27, t28);
-) ;
-printf( int t30 = a ;
-int t31 = b ;
-int t32 = gcd_iterative (t30, t31);
-) ;
+int t30 = a ;
+printf( " %d %d \n" , t29, t30) ;
+int t31 = a ;
+int t32 = b ;
+int t33 = gcd_iterative (t31, t32);
+printf( " %d \n" , t33) ;
 return 0; 
  }

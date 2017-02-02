@@ -76,6 +76,7 @@
 bucket* globalTable; 
 bucket* localTable;
 int isGlobal; //0 if it aint global else 1
+char* lastVariable; //cOutput
 
 int yyerror (char *msg) {
   showLine();
@@ -157,7 +158,7 @@ void initArguments(){
 }
 
 void addArg(tempType t) {
-	int arg = t.type;
+    int arg = t.type;
     if((argSize-1) == argIndex){
         int* temp = malloc(argSize*2*sizeof(int));    
         copy(temp, arguments);
@@ -190,7 +191,7 @@ void insertSymbolsAndArguments(tempType t){
 }
 
 
-#line 194 "minipas.tab.c" /* yacc.c:339  */
+#line 195 "minipas.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -256,13 +257,13 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 129 "minipas.y" /* yacc.c:355  */
+#line 130 "minipas.y" /* yacc.c:355  */
 
   struct tempType tempType; //cOutput
   char *strtabptr;
   int label; //cOutput
 
-#line 266 "minipas.tab.c" /* yacc.c:355  */
+#line 267 "minipas.tab.c" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -277,7 +278,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 281 "minipas.tab.c" /* yacc.c:358  */
+#line 282 "minipas.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -519,16 +520,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   116
+#define YYLAST   123
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  36
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  38
+#define YYNNTS  37
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  66
+#define YYNRULES  65
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  135
+#define YYNSTATES  134
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -577,13 +578,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   146,   146,   148,   146,   153,   158,   164,   168,   171,
-     172,   175,   176,   179,   180,   183,   190,   190,   201,   201,
-     213,   214,   217,   219,   223,   226,   227,   230,   231,   234,
-     239,   240,   242,   246,   241,   255,   254,   266,   269,   272,
-     275,   278,   279,   282,   283,   284,   284,   285,   288,   289,
-     292,   300,   303,   304,   307,   308,   309,   315,   323,   324,
-     327,   328,   336,   338,   339,   347,   348
+       0,   147,   147,   149,   147,   154,   159,   165,   169,   172,
+     173,   176,   177,   180,   181,   184,   191,   191,   202,   202,
+     214,   215,   218,   220,   224,   227,   228,   231,   232,   235,
+     240,   241,   243,   247,   242,   256,   255,   267,   270,   273,
+     276,   279,   280,   283,   284,   285,   291,   298,   299,   302,
+     310,   313,   314,   317,   318,   319,   325,   333,   334,   337,
+     338,   346,   349,   350,   358,   359
 };
 #endif
 
@@ -601,9 +602,8 @@ static const char *const yytname[] =
   "subprogdecl", "subprogheading", "$@3", "$@4", "arguments", "paramlist",
   "compoundstatement", "optionalstatements", "statementlist", "statement",
   "$@5", "$@6", "$@7", "ifrule", "thenrule", "whilerule", "dorule",
-  "variable", "procstatement", "$@8", "exprlist", "boolexpression",
-  "relationop", "expression", "simpleexpr", "sign", "term", "multop",
-  "factor", YY_NULLPTR
+  "variable", "procstatement", "exprlist", "boolexpression", "relationop",
+  "expression", "simpleexpr", "sign", "term", "multop", "factor", YY_NULLPTR
 };
 #endif
 
@@ -619,10 +619,10 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -92
+#define YYPACT_NINF -91
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-92)))
+  (!!((Yystate) == (-91)))
 
 #define YYTABLE_NINF -42
 
@@ -633,20 +633,20 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      12,    24,    22,     4,   -92,    40,   -92,    -7,    54,    56,
-     -92,   -92,   -92,    45,    40,    53,    37,   -92,   -92,    57,
-      55,   -92,     6,    77,    80,    29,    58,   -92,    33,    59,
-     -92,   -92,    60,   -92,    64,    64,    -8,   -92,   -92,    66,
-     -92,   -92,    70,    67,   -92,     1,     1,    78,   -92,   -92,
-     -92,    85,   -92,    40,    68,    69,     1,     1,     1,    72,
-     -92,    29,    74,   -92,     1,   -92,   -92,   -92,    83,    -9,
-       3,    63,   -92,    75,     1,    95,    39,    46,    65,   -92,
-      18,   -92,    71,    28,     1,   -92,     1,    76,   -92,   -92,
-     -92,     3,     3,     1,    63,   -92,     3,   -92,   -92,   -92,
-      97,     6,   -92,    40,    79,   -92,     1,   -92,   -92,    32,
-      34,   -92,    29,    63,    63,    43,   -92,    29,    73,   -92,
-      49,   -92,   -92,   -92,   -92,   -92,   -92,    99,     6,    90,
-      65,   -92,    29,   -92,   -92
+      13,    19,    58,     3,   -91,    34,   -91,    -2,    14,    66,
+     -91,   -91,   -91,    75,    34,     5,    35,   -91,   -91,    67,
+      54,   -91,    50,    79,    80,    29,    56,   -91,     8,    55,
+     -91,   -91,    60,   -91,    65,    65,    -6,   -91,   -91,    68,
+      69,   -91,    71,    62,   -91,     1,     1,    76,   -91,   -91,
+     -91,    85,   -91,    34,    70,    72,     1,     1,     1,     1,
+     -91,    29,    73,   -91,     1,   -91,   -91,   -91,    78,    10,
+       4,    74,   -91,    77,     1,    95,    38,    45,    64,   -91,
+      20,   -91,    81,    21,    32,   -91,     1,    82,   -91,   -91,
+     -91,     4,     4,     1,    74,   -91,     4,   -91,   -91,   -91,
+      96,    50,   -91,    34,    83,   -91,     1,   -91,   -91,   -91,
+      37,   -91,    29,    74,    74,    42,   -91,    29,    84,   -91,
+      48,   -91,   -91,   -91,   -91,   -91,    94,    50,    86,    64,
+     -91,    29,   -91,   -91
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -658,25 +658,25 @@ static const yytype_uint8 yydefact[] =
        2,     6,     8,    14,     0,     3,     0,    16,    18,     0,
        0,     8,     0,     0,     0,    26,     0,    13,     0,     0,
       11,    12,     0,     9,    21,    21,    43,    37,    39,     0,
-      45,    31,     0,    25,    27,     0,     0,     0,    30,     4,
+       0,    31,     0,    25,    27,     0,     0,     0,    30,     4,
       15,     0,     7,     0,     0,     0,     0,     0,     0,     0,
-      24,     0,    63,    65,     0,    58,    59,    53,     0,    52,
-       0,    54,    60,     0,     0,     0,     0,     0,     0,    19,
-       0,    48,     0,     0,     0,    28,     0,     0,    38,    32,
-      51,     0,     0,     0,    55,    62,     0,    40,    35,    29,
-       0,     0,    20,     0,     0,    44,     0,    42,    47,     0,
-       0,    66,     0,    56,    57,    50,    61,     0,     0,    22,
-       0,    17,    49,    46,    64,    33,    36,     0,     0,     0,
-       0,    23,     0,    10,    34
+      24,     0,    62,    64,     0,    57,    58,    52,     0,    51,
+       0,    53,    59,     0,     0,     0,     0,     0,     0,    19,
+       0,    47,     0,     0,     0,    28,     0,     0,    38,    32,
+      50,     0,     0,     0,    54,    61,     0,    40,    35,    29,
+       0,     0,    20,     0,     0,    44,     0,    42,    46,    45,
+       0,    65,     0,    55,    56,    49,    60,     0,     0,    22,
+       0,    17,    48,    63,    33,    36,     0,     0,     0,     0,
+      23,     0,    10,    34
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -92,   -92,   -92,   -92,   -14,    89,   -91,   -74,   -92,   -92,
-     -92,   -92,   -92,    81,   -92,    23,   -92,   -92,   -60,   -92,
-     -92,   -92,   -92,   -92,   -92,   -92,   -92,   -92,   -92,   -52,
-     -92,   -92,   -43,    19,   -92,   -51,   -92,    15
+     -91,   -91,   -91,   -91,   -14,    87,   -90,   -74,   -91,   -91,
+     -91,   -91,   -91,    88,   -91,    -4,   -91,   -91,   -60,   -91,
+     -91,   -91,   -91,   -91,   -91,   -91,   -91,   -91,   -52,   -91,
+     -91,   -43,    17,   -91,   -51,   -91,    11
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -684,8 +684,8 @@ static const yytype_int16 yydefgoto[] =
 {
       -1,     2,    12,    19,     7,    13,    32,    33,    15,    20,
       21,    23,    24,    54,    77,    41,    42,    43,    44,   112,
-     129,   117,    45,    89,    46,    98,    47,    48,    59,    80,
-      67,    93,    81,    69,    70,    71,    96,    72
+     128,   117,    45,    89,    46,    98,    47,    48,    80,    67,
+      93,    81,    69,    70,    71,    96,    72
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -693,34 +693,36 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-      16,    85,    68,    73,   104,    62,    83,    62,   -41,    63,
-     119,    63,    29,    90,    82,     1,    30,    31,    56,    94,
-       8,    87,     4,     9,    57,    91,    92,    64,     3,    64,
-       5,    99,   109,    36,   110,    65,    66,   131,    14,    76,
-     113,   114,    26,    25,     6,   105,    37,    25,   106,    38,
-      14,    50,   125,    39,    40,   108,   133,   126,   106,   123,
-      11,   124,   106,   122,   106,    17,    18,     9,    22,     9,
-     101,    25,   134,   102,   103,    30,    31,    91,    92,     9,
-     128,    34,    10,    27,    35,    60,    95,    49,    52,   120,
-      53,    51,    58,    75,    74,    61,    97,    79,    84,    78,
-      86,    88,   100,   111,   107,   118,   127,   121,   130,   132,
-      28,   116,   115,     0,     0,     0,    55
+      16,    85,    68,    73,   104,    62,    83,    84,    62,    63,
+     -41,   119,    63,    14,    82,    26,     1,    17,    18,    94,
+      56,    87,    25,     3,    50,     8,    57,    64,     9,     5,
+      64,    99,    90,    36,   110,    65,    66,   130,     6,    76,
+     113,   114,    10,    25,    91,    92,    37,   105,   108,    38,
+     106,   106,   124,    39,    40,   132,    29,   125,     4,   109,
+      30,    31,   106,   122,   123,     9,    22,   106,     9,   101,
+      11,   133,   102,   103,    30,    31,    91,    92,     9,   127,
+      14,    25,    27,    34,    35,    49,    60,    51,    52,   120,
+      61,    53,    74,    75,    58,    59,    88,    95,    97,    86,
+      79,    78,   100,   129,   118,   131,     0,   116,    28,   111,
+     115,   121,     0,     0,   107,     0,     0,   126,     0,     0,
+       0,     0,     0,    55
 };
 
 static const yytype_int16 yycheck[] =
 {
-      14,    61,    45,    46,    78,     4,    58,     4,    16,     8,
-     101,     8,     6,    22,    57,     3,    10,    11,    26,    70,
-      27,    64,     0,    30,    32,    34,    35,    26,     4,    26,
-      26,    74,    84,     4,    86,    34,    35,   128,     5,    53,
-      91,    92,    19,    14,     4,    27,    17,    14,    30,    20,
-       5,    28,   112,    24,    25,    27,   130,   117,    30,    27,
-       4,    27,    30,   106,    30,    12,    13,    30,    31,    30,
-      31,    14,   132,    27,    28,    10,    11,    34,    35,    30,
-      31,     4,    28,    28,     4,    15,    23,    29,    28,   103,
-      26,    32,    26,     8,    16,    28,    21,    28,    26,    31,
-      26,    18,     7,    27,    33,     8,    33,    28,     9,    19,
-      21,    96,    93,    -1,    -1,    -1,    35
+      14,    61,    45,    46,    78,     4,    58,    59,     4,     8,
+      16,   101,     8,     5,    57,    19,     3,    12,    13,    70,
+      26,    64,    14,     4,    28,    27,    32,    26,    30,    26,
+      26,    74,    22,     4,    86,    34,    35,   127,     4,    53,
+      91,    92,    28,    14,    34,    35,    17,    27,    27,    20,
+      30,    30,   112,    24,    25,   129,     6,   117,     0,    27,
+      10,    11,    30,   106,    27,    30,    31,    30,    30,    31,
+       4,   131,    27,    28,    10,    11,    34,    35,    30,    31,
+       5,    14,    28,     4,     4,    29,    15,    32,    28,   103,
+      28,    26,    16,     8,    26,    26,    18,    23,    21,    26,
+      28,    31,     7,     9,     8,    19,    -1,    96,    21,    27,
+      93,    28,    -1,    -1,    33,    -1,    -1,    33,    -1,    -1,
+      -1,    -1,    -1,    35
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -732,15 +734,15 @@ static const yytype_uint8 yystos[] =
       45,    46,    31,    47,    48,    14,    51,    28,    41,     6,
       10,    11,    42,    43,     4,     4,     4,    17,    20,    24,
       25,    51,    52,    53,    54,    58,    60,    62,    63,    29,
-      51,    32,    28,    26,    49,    49,    26,    32,    26,    64,
-      15,    28,     4,     8,    26,    34,    35,    66,    68,    69,
-      70,    71,    73,    68,    16,     8,    40,    50,    31,    28,
-      65,    68,    68,    65,    26,    54,    26,    68,    18,    59,
-      22,    34,    35,    67,    71,    23,    72,    21,    61,    68,
-       7,    31,    27,    28,    43,    27,    30,    33,    27,    65,
-      65,    27,    55,    71,    71,    69,    73,    57,     8,    42,
-      40,    28,    68,    27,    27,    54,    54,    33,    31,    56,
-       9,    42,    19,    43,    54
+      51,    32,    28,    26,    49,    49,    26,    32,    26,    26,
+      15,    28,     4,     8,    26,    34,    35,    65,    67,    68,
+      69,    70,    72,    67,    16,     8,    40,    50,    31,    28,
+      64,    67,    67,    64,    64,    54,    26,    67,    18,    59,
+      22,    34,    35,    66,    70,    23,    71,    21,    61,    67,
+       7,    31,    27,    28,    43,    27,    30,    33,    27,    27,
+      64,    27,    55,    70,    70,    68,    72,    57,     8,    42,
+      40,    28,    67,    27,    54,    54,    33,    31,    56,     9,
+      42,    19,    43,    54
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -750,9 +752,9 @@ static const yytype_uint8 yyr1[] =
       42,    43,    43,    44,    44,    45,    47,    46,    48,    46,
       49,    49,    50,    50,    51,    52,    52,    53,    53,    54,
       54,    54,    55,    56,    54,    57,    54,    58,    59,    60,
-      61,    62,    62,    63,    63,    64,    63,    63,    65,    65,
-      66,    67,    68,    68,    69,    69,    69,    69,    70,    70,
-      71,    71,    72,    73,    73,    73,    73
+      61,    62,    62,    63,    63,    63,    63,    64,    64,    65,
+      66,    67,    67,    68,    68,    68,    68,    69,    69,    70,
+      70,    71,    72,    72,    72,    72
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -762,9 +764,9 @@ static const yytype_uint8 yyr2[] =
        8,     1,     1,     3,     0,     3,     0,     7,     0,     5,
        3,     0,     3,     5,     3,     1,     0,     1,     3,     3,
        1,     1,     0,     0,     8,     0,     5,     1,     1,     1,
-       1,     1,     4,     1,     4,     0,     5,     4,     1,     3,
-       3,     1,     1,     1,     1,     2,     3,     3,     1,     1,
-       1,     3,     1,     1,     4,     1,     3
+       1,     1,     4,     1,     4,     4,     4,     1,     3,     3,
+       1,     1,     1,     1,     2,     3,     3,     1,     1,     1,
+       3,     1,     1,     4,     1,     3
 };
 
 
@@ -1441,71 +1443,71 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 146 "minipas.y" /* yacc.c:1646  */
+#line 147 "minipas.y" /* yacc.c:1646  */
     {freeStack();}
-#line 1447 "minipas.tab.c" /* yacc.c:1646  */
+#line 1449 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 148 "minipas.y" /* yacc.c:1646  */
+#line 149 "minipas.y" /* yacc.c:1646  */
     {outputMain();}
-#line 1453 "minipas.tab.c" /* yacc.c:1646  */
+#line 1455 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 150 "minipas.y" /* yacc.c:1646  */
+#line 151 "minipas.y" /* yacc.c:1646  */
     {outputEndMain();}
-#line 1459 "minipas.tab.c" /* yacc.c:1646  */
+#line 1461 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 154 "minipas.y" /* yacc.c:1646  */
+#line 155 "minipas.y" /* yacc.c:1646  */
     { 
 						initStack();
 						push((yyvsp[0].strtabptr));
 					}
-#line 1468 "minipas.tab.c" /* yacc.c:1646  */
+#line 1470 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 159 "minipas.y" /* yacc.c:1646  */
+#line 160 "minipas.y" /* yacc.c:1646  */
     {
 					   push((yyvsp[0].strtabptr));
 					}
-#line 1476 "minipas.tab.c" /* yacc.c:1646  */
+#line 1478 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 165 "minipas.y" /* yacc.c:1646  */
+#line 166 "minipas.y" /* yacc.c:1646  */
     {
 						insertSymbolsFromStack((yyvsp[-1].tempType));
 					}
-#line 1484 "minipas.tab.c" /* yacc.c:1646  */
+#line 1486 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 172 "minipas.y" /* yacc.c:1646  */
+#line 173 "minipas.y" /* yacc.c:1646  */
     {struct tempType t = (yyvsp[0].tempType); t.type + 2; (yyval.tempType) = t;}
-#line 1490 "minipas.tab.c" /* yacc.c:1646  */
+#line 1492 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 184 "minipas.y" /* yacc.c:1646  */
+#line 185 "minipas.y" /* yacc.c:1646  */
     {
 				outputString("return "); outputString((yyvsp[-2].strtabptr)); outputEnd(); 
 				outputString("}\n");
 			}
-#line 1499 "minipas.tab.c" /* yacc.c:1646  */
+#line 1501 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 190 "minipas.y" /* yacc.c:1646  */
+#line 191 "minipas.y" /* yacc.c:1646  */
     {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/}
-#line 1505 "minipas.tab.c" /* yacc.c:1646  */
+#line 1507 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 191 "minipas.y" /* yacc.c:1646  */
+#line 192 "minipas.y" /* yacc.c:1646  */
     {
 							outputFunctionName((yyvsp[-1].tempType), (yyvsp[-4].strtabptr)); //cOuput
 							checkDoubleDeclaration((yyvsp[-4].strtabptr), localTable); 
@@ -1516,17 +1518,17 @@ yyreduce:
 							free(arguments);
 							(yyval.strtabptr) = (yyvsp[-4].strtabptr);
 						}
-#line 1520 "minipas.tab.c" /* yacc.c:1646  */
+#line 1522 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 201 "minipas.y" /* yacc.c:1646  */
+#line 202 "minipas.y" /* yacc.c:1646  */
     {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/}
-#line 1526 "minipas.tab.c" /* yacc.c:1646  */
+#line 1528 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 202 "minipas.y" /* yacc.c:1646  */
+#line 203 "minipas.y" /* yacc.c:1646  */
     {
 							struct tempType t; t.type = -1; //cOuput
 							outputFunctionName(t, (yyvsp[-2].strtabptr)); //cOuput
@@ -1536,211 +1538,213 @@ yyreduce:
 							free(arguments);
 							(yyval.strtabptr) = "";
 						}
-#line 1540 "minipas.tab.c" /* yacc.c:1646  */
+#line 1542 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 218 "minipas.y" /* yacc.c:1646  */
+#line 219 "minipas.y" /* yacc.c:1646  */
     {insertSymbolsAndArguments((yyvsp[0].tempType));}
-#line 1546 "minipas.tab.c" /* yacc.c:1646  */
+#line 1548 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 220 "minipas.y" /* yacc.c:1646  */
+#line 221 "minipas.y" /* yacc.c:1646  */
     {insertSymbolsAndArguments((yyvsp[0].tempType));}
-#line 1552 "minipas.tab.c" /* yacc.c:1646  */
+#line 1554 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 235 "minipas.y" /* yacc.c:1646  */
+#line 236 "minipas.y" /* yacc.c:1646  */
     {
 				checkEqual(getType((yyvsp[-2].strtabptr)),(yyvsp[0].tempType));
 				outputString((yyvsp[-2].strtabptr)); outputString(" = "); outputOldTemp((yyvsp[0].tempType).temp); outputEnd(); //cOuput
 			}
-#line 1561 "minipas.tab.c" /* yacc.c:1646  */
+#line 1563 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 242 "minipas.y" /* yacc.c:1646  */
+#line 243 "minipas.y" /* yacc.c:1646  */
     {
 				outputString("if(!"); outputOldTemp((yyvsp[-1].tempType).temp); outputString(")"); outputString("goto "); outputLabel((yyvsp[-2].label)); outputEnd(); //cOuput
 			}
-#line 1569 "minipas.tab.c" /* yacc.c:1646  */
+#line 1571 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 246 "minipas.y" /* yacc.c:1646  */
+#line 247 "minipas.y" /* yacc.c:1646  */
     {
 				outputString("goto "); outputLabel((yyvsp[-2].label)); outputEnd(); //cOuput
 				outputLabel((yyvsp[-4].label)); outputString(": "); outputEnd(); //cOuput
 			}
-#line 1578 "minipas.tab.c" /* yacc.c:1646  */
+#line 1580 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 251 "minipas.y" /* yacc.c:1646  */
+#line 252 "minipas.y" /* yacc.c:1646  */
     {
 				outputLabel((yyvsp[-5].label)); outputString(": "); outputEnd(); //cOuput
 			}
-#line 1586 "minipas.tab.c" /* yacc.c:1646  */
+#line 1588 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 255 "minipas.y" /* yacc.c:1646  */
+#line 256 "minipas.y" /* yacc.c:1646  */
     {
 				outputLabel((yyvsp[-2].label)); outputString(": "); outputEnd(); //cOutput
 				outputString("if(!"); outputOldTemp((yyvsp[-1].tempType).temp); outputString(")"); outputString("goto "); outputLabel((yyvsp[0].label)); outputEnd(); //cOutput
 			}
-#line 1595 "minipas.tab.c" /* yacc.c:1646  */
+#line 1597 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 260 "minipas.y" /* yacc.c:1646  */
+#line 261 "minipas.y" /* yacc.c:1646  */
     {
 				outputString("goto "); outputLabel((yyvsp[-4].label)); outputEnd(); //cOutput
 				outputLabel((yyvsp[-2].label)); outputString(": "); outputEnd(); //cOutput
 			}
-#line 1604 "minipas.tab.c" /* yacc.c:1646  */
+#line 1606 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 266 "minipas.y" /* yacc.c:1646  */
+#line 267 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1610 "minipas.tab.c" /* yacc.c:1646  */
+#line 1612 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 269 "minipas.y" /* yacc.c:1646  */
+#line 270 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1616 "minipas.tab.c" /* yacc.c:1646  */
+#line 1618 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 272 "minipas.y" /* yacc.c:1646  */
+#line 273 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1622 "minipas.tab.c" /* yacc.c:1646  */
+#line 1624 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 275 "minipas.y" /* yacc.c:1646  */
+#line 276 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1628 "minipas.tab.c" /* yacc.c:1646  */
+#line 1630 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 283 "minipas.y" /* yacc.c:1646  */
+#line 284 "minipas.y" /* yacc.c:1646  */
     {getType((yyvsp[-3].strtabptr)); if(!isFunction(globalTable, (yyvsp[-3].strtabptr))) {printf("%s is not a function\n", (yyvsp[-3].strtabptr)); exit(-1);} checkArguments(globalTable, (yyvsp[-3].strtabptr), arguments, argIndex); free(arguments);}
-#line 1634 "minipas.tab.c" /* yacc.c:1646  */
+#line 1636 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 284 "minipas.y" /* yacc.c:1646  */
-    {outputString("printf(");}
-#line 1640 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 46:
-#line 284 "minipas.y" /* yacc.c:1646  */
-    {free(arguments); outputString(")"); outputEnd();}
+#line 286 "minipas.y" /* yacc.c:1646  */
+    {	
+								outputPrintf();
+								free(arguments);
+								//todo free varlist here
+							}
 #line 1646 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
+  case 46:
+#line 291 "minipas.y" /* yacc.c:1646  */
+    {
+								outputScanf();
+								free(arguments);
+								//todo free varlist here
+							}
+#line 1656 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
   case 47:
-#line 285 "minipas.y" /* yacc.c:1646  */
-    {free(arguments);}
-#line 1652 "minipas.tab.c" /* yacc.c:1646  */
+#line 298 "minipas.y" /* yacc.c:1646  */
+    {initArguments(); initVarList(); addArg((yyvsp[0].tempType)); addVar(lastVariable); initTempList(); storeToTempList((yyvsp[0].tempType).type);/*cOutput*/}
+#line 1662 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 288 "minipas.y" /* yacc.c:1646  */
-    {initArguments(); addArg((yyvsp[0].tempType)); initTempList(); storeToTempList();/*cOutput*/}
-#line 1658 "minipas.tab.c" /* yacc.c:1646  */
+#line 299 "minipas.y" /* yacc.c:1646  */
+    {addArg((yyvsp[0].tempType)); addVar(lastVariable); storeToTempList((yyvsp[0].tempType).type);/*cOutput*/}
+#line 1668 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 289 "minipas.y" /* yacc.c:1646  */
-    {addArg((yyvsp[0].tempType)); storeToTempList();/*cOutput*/}
-#line 1664 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 50:
-#line 293 "minipas.y" /* yacc.c:1646  */
+#line 303 "minipas.y" /* yacc.c:1646  */
     {
 							checkEqual((yyvsp[-2].tempType),(yyvsp[0].tempType)); 
 							outputTempValue((yyvsp[-2].tempType)); outputOldTemp((yyvsp[-2].tempType).temp); outputString((yyvsp[-1].strtabptr)); outputOldTemp((yyvsp[0].tempType).temp); outputEnd(); //cOuput 
 							struct tempType t = (yyvsp[-2].tempType); t.temp = getLastTemp(); (yyval.tempType) = t; //cOuput
 						}
-#line 1674 "minipas.tab.c" /* yacc.c:1646  */
+#line 1678 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
-  case 51:
-#line 300 "minipas.y" /* yacc.c:1646  */
+  case 50:
+#line 310 "minipas.y" /* yacc.c:1646  */
     {char *tmp = malloc((strlen(yytext) + 1) * sizeof(char)); strcpy(tmp, yytext); (yyval.strtabptr) = tmp;}
-#line 1680 "minipas.tab.c" /* yacc.c:1646  */
+#line 1684 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 54:
+#line 318 "minipas.y" /* yacc.c:1646  */
+    {outputTempValue((yyvsp[0].tempType)); outputString((yyvsp[-1].strtabptr)); outputLastTemp(); outputEnd(); struct tempType t = (yyvsp[0].tempType); t.temp = getLastTemp(); (yyval.tempType) = t;}
+#line 1690 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 308 "minipas.y" /* yacc.c:1646  */
-    {outputTempValue((yyvsp[0].tempType)); outputString((yyvsp[-1].strtabptr)); outputLastTemp(); outputEnd(); struct tempType t = (yyvsp[0].tempType); t.temp = getLastTemp(); (yyval.tempType) = t;}
-#line 1686 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 56:
-#line 310 "minipas.y" /* yacc.c:1646  */
+#line 320 "minipas.y" /* yacc.c:1646  */
     {
 							checkEqual((yyvsp[-2].tempType),(yyvsp[0].tempType)); 
 							outputTempValue((yyvsp[-2].tempType)); outputOldTemp((yyvsp[-2].tempType).temp); outputString(" + "); outputOldTemp((yyvsp[0].tempType).temp); outputEnd(); //cOuput
 							struct tempType t = (yyvsp[-2].tempType); t.temp = getLastTemp(); (yyval.tempType) = t; //cOuput
 						}
-#line 1696 "minipas.tab.c" /* yacc.c:1646  */
+#line 1700 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
-  case 57:
-#line 316 "minipas.y" /* yacc.c:1646  */
+  case 56:
+#line 326 "minipas.y" /* yacc.c:1646  */
     {
 							checkEqual((yyvsp[-2].tempType),(yyvsp[0].tempType)); 
 							outputTempValue((yyvsp[-2].tempType)); outputOldTemp((yyvsp[-2].tempType).temp); outputString(" - "); outputOldTemp((yyvsp[0].tempType).temp); outputEnd(); //cOuput
 							struct tempType t = (yyvsp[-2].tempType); t.temp = getLastTemp(); (yyval.tempType) = t; //cOuput
 						}
-#line 1706 "minipas.tab.c" /* yacc.c:1646  */
+#line 1710 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 333 "minipas.y" /* yacc.c:1646  */
+    {(yyval.strtabptr) = "+";}
+#line 1716 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 323 "minipas.y" /* yacc.c:1646  */
-    {(yyval.strtabptr) = "+";}
-#line 1712 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 59:
-#line 324 "minipas.y" /* yacc.c:1646  */
+#line 334 "minipas.y" /* yacc.c:1646  */
     {(yyval.strtabptr) = "-";}
-#line 1718 "minipas.tab.c" /* yacc.c:1646  */
+#line 1722 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
-  case 61:
-#line 329 "minipas.y" /* yacc.c:1646  */
+  case 60:
+#line 339 "minipas.y" /* yacc.c:1646  */
     {
 							checkEqual((yyvsp[-2].tempType),(yyvsp[0].tempType)); 
 							outputTempValue((yyvsp[-2].tempType)); outputOldTemp((yyvsp[-2].tempType).temp); outputMulop((yyvsp[-1].strtabptr)); outputOldTemp((yyvsp[0].tempType).temp); outputEnd(); //cOuput
 							struct tempType t = (yyvsp[-2].tempType); t.temp = getLastTemp(); (yyval.tempType) = t; //cOuput
 						}
-#line 1728 "minipas.tab.c" /* yacc.c:1646  */
+#line 1732 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 61:
+#line 346 "minipas.y" /* yacc.c:1646  */
+    {(yyval.strtabptr)=yytext;}
+#line 1738 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 336 "minipas.y" /* yacc.c:1646  */
-    {(yyval.strtabptr)=yytext;}
-#line 1734 "minipas.tab.c" /* yacc.c:1646  */
+#line 349 "minipas.y" /* yacc.c:1646  */
+    {outputTempValue(getType((yyvsp[0].strtabptr))); outputString((yyvsp[0].strtabptr)); outputEnd(); struct tempType t; t = getType((yyvsp[0].strtabptr)); t.temp = getLastTemp(); (yyval.tempType) = t; lastVariable = (yyvsp[0].strtabptr);}
+#line 1744 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 338 "minipas.y" /* yacc.c:1646  */
-    {outputTempValue(getType((yyvsp[0].strtabptr))); outputString((yyvsp[0].strtabptr)); outputEnd(); struct tempType t; t = getType((yyvsp[0].strtabptr)); t.temp = getLastTemp(); (yyval.tempType) = t;}
-#line 1740 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 64:
-#line 340 "minipas.y" /* yacc.c:1646  */
+#line 351 "minipas.y" /* yacc.c:1646  */
     {
 							if(!isFunction(globalTable, (yyvsp[-3].strtabptr))) {printf("%s is not a function\n", (yyvsp[-3].strtabptr)); exit(-1);}
 							checkArguments(globalTable, (yyvsp[-3].strtabptr), arguments, argIndex);
@@ -1748,23 +1752,23 @@ yyreduce:
 							outputTempValue(getType((yyvsp[-3].strtabptr))); outputString((yyvsp[-3].strtabptr)); outputTempList(); outputEnd(); //cOutput
 							struct tempType t; t = getType((yyvsp[-3].strtabptr)); t.temp = getLastTemp(); (yyval.tempType) = t; //cOuput
 						}
-#line 1752 "minipas.tab.c" /* yacc.c:1646  */
+#line 1756 "minipas.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 64:
+#line 358 "minipas.y" /* yacc.c:1646  */
+    {outputTempValue((yyvsp[0].tempType)); outputString(yytext); outputEnd(); struct tempType t = (yyvsp[0].tempType); t.temp = getLastTemp(); (yyval.tempType) = t;}
+#line 1762 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 347 "minipas.y" /* yacc.c:1646  */
-    {outputTempValue((yyvsp[0].tempType)); outputString(yytext); outputEnd(); struct tempType t = (yyvsp[0].tempType); t.temp = getLastTemp(); (yyval.tempType) = t;}
-#line 1758 "minipas.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 66:
-#line 348 "minipas.y" /* yacc.c:1646  */
+#line 359 "minipas.y" /* yacc.c:1646  */
     {outputTempValue((yyvsp[-1].tempType)); outputLastTemp(); outputEnd(); struct tempType t = (yyvsp[-1].tempType); t.temp = getLastTemp(); (yyval.tempType) = t;}
-#line 1764 "minipas.tab.c" /* yacc.c:1646  */
+#line 1768 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1768 "minipas.tab.c" /* yacc.c:1646  */
+#line 1772 "minipas.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1992,7 +1996,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 351 "minipas.y" /* yacc.c:1906  */
+#line 362 "minipas.y" /* yacc.c:1906  */
 
 
 int main(int argc, char *argv[]) {

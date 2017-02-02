@@ -11,6 +11,7 @@
 bucket* globalTable; 
 bucket* localTable;
 int isGlobal; //0 if it aint global else 1
+char* lastVariable; //cOutput
 
 int yyerror (char *msg) {
   showLine();
@@ -92,7 +93,7 @@ void initArguments(){
 }
 
 void addArg(tempType t) {
-	int arg = t.type;
+    int arg = t.type;
     if((argSize-1) == argIndex){
         int* temp = malloc(argSize*2*sizeof(int));    
         copy(temp, arguments);
@@ -281,12 +282,21 @@ variable           : IDENTIFIER
 
 procstatement      : IDENTIFIER
                    | IDENTIFIER '(' exprlist ')'	{getType($1); if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);} checkArguments(globalTable, $1, arguments, argIndex); free(arguments);}
-                   | WRITELN '(' exprlist ')' 		{free(arguments); outputString("printf("); outputString(")"); outputEnd();} //nothing has to happen except writln
-                   | READLN '(' exprlist ')'		{free(arguments);} //nothing has to happen except readln
+                   | WRITELN '(' exprlist ')' 		
+							{	
+								outputPrintf();
+								free(arguments);
+								//todo free varlist here
+							}
+                   | READLN '(' exprlist ')'		{
+								outputScanf();
+								free(arguments);
+								//todo free varlist here
+							}
                    ;
 
-exprlist           : expression					{initArguments(); addArg($1); initTempList(); storeToTempList();/*cOutput*/}
-                   | exprlist ',' expression			{addArg($3); storeToTempList();/*cOutput*/}
+exprlist           : expression					{initArguments(); initVarList(); addArg($1); addVar(lastVariable); initTempList(); storeToTempList($1.type);/*cOutput*/}
+                   | exprlist ',' expression			{addArg($3); addVar(lastVariable); storeToTempList($3.type);/*cOutput*/}
                    ;
 
 boolexpression	   : simpleexpr relationop simpleexpr
@@ -333,9 +343,10 @@ term               : factor
 						}
                    ;
 
-multop		   : MULOP {$$=yytext;}                  
+multop		   : MULOP {$$=yytext;}   
+		   ;
                    
-factor             : IDENTIFIER 					{outputTempValue(getType($1)); outputString($1); outputEnd(); struct tempType t; t = getType($1); t.temp = getLastTemp(); $$ = t;} //cOuput 
+factor             : IDENTIFIER 					{outputTempValue(getType($1)); outputString($1); outputEnd(); struct tempType t; t = getType($1); t.temp = getLastTemp(); $$ = t; lastVariable = $1;} //cOuput 
                    | IDENTIFIER '(' exprlist ')' 		
 						{
 							if(!isFunction(globalTable, $1)) {printf("%s is not a function\n", $1); exit(-1);}
@@ -344,7 +355,7 @@ factor             : IDENTIFIER 					{outputTempValue(getType($1)); outputString
 							outputTempValue(getType($1)); outputString($1); outputTempList(); outputEnd(); //cOutput
 							struct tempType t; t = getType($1); t.temp = getLastTemp(); $$ = t; //cOuput
 						} 
-                   | NUMBER							{outputTempValue($1); outputString(yytext); outputEnd(); struct tempType t = $1; t.temp = getLastTemp(); $$ = t;} //cOuput 
+                   | NUMBER					{outputTempValue($1); outputString(yytext); outputEnd(); struct tempType t = $1; t.temp = getLastTemp(); $$ = t;} //cOuput 
                    | '(' expression ')'				{outputTempValue($2); outputLastTemp(); outputEnd(); struct tempType t = $2; t.temp = getLastTemp(); $$ = t;} //cOuput 
                    ;
 

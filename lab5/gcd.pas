@@ -32,6 +32,6 @@ end;
 { main program starts here }
 BEGIN
   readln(a, b);
-  writeln(gcd_recursive(a,b));
+  writeln(gcd_recursive(a,b), a);
   writeln(gcd_iterative(a,b))
 END.

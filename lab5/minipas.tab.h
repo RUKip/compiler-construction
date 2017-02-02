@@ -76,7 +76,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 129 "minipas.y" /* yacc.c:1909  */
+#line 130 "minipas.y" /* yacc.c:1909  */
 
   struct tempType tempType; //cOutput
   char *strtabptr;

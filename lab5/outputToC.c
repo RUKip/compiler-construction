@@ -6,7 +6,7 @@ FILE *f;
 char* currentFunction;
 int tempCount = 0;
 int labelCount = 0;
-int lastTemp;
+struct tempType lastTemp;
 
 typedef struct argument {
   char *name;  
@@ -49,7 +49,8 @@ void printType(tempType t){
 	int type = t.type;
 	switch(type){	
 	case -1:
-		fprintf(f, "void ");	
+		fprintf(f, "void ");
+		break;
 	case 265:
 		fprintf(f, "int ");	
 		break;
@@ -108,40 +109,41 @@ void outputString(char* string){
 }
 
 void outputLastTemp(){
-	fprintf(f, "t%d ", lastTemp);
-	lastTemp = tempCount-1;
+	fprintf(f, "t%d ", lastTemp.temp);
+	lastTemp.temp = tempCount-1;
 }
 
 void outputEnd(){
 	fprintf(f, ";\n");
-	lastTemp = tempCount-1;
+	lastTemp.temp = tempCount-1;
 }
 
 
 int tempSize1, tempIndex1;
-int* tempList;
+tempType* tempList;
 
 void initTempList(){
 	tempSize1=10;
 	tempIndex1=0;
-	tempList = malloc(tempSize1*sizeof(int)); 
+	tempList = malloc(tempSize1*sizeof(tempType)); 
 }
 
-void copyTempList(int* new, int* old) {
+void copyTempList(tempType* new, tempType* old) {
     int i;
     for (i = 0; i < tempSize1; i++) {
         new[i] = old[i];
     }
 }
 
-void storeToTempList() {
+void storeToTempList(int type) {
     if((tempSize1-1) == tempIndex1){
-        int* temp = malloc(tempSize1*2*sizeof(int));    
+        tempType* temp = malloc(tempSize1*2*sizeof(tempType));    
         copyTempList(temp, tempList);
         tempSize1 *= 2;
         free(tempList);
         tempList = temp;    
     } 
+    lastTemp.type = type;
     tempList[tempIndex1] = lastTemp;
     tempIndex1++;
 }
@@ -150,13 +152,95 @@ void outputTempList(){
 	fprintf(f, "(");
 	int i;
 	for(i = 0; i<tempIndex1; i++){
-		fprintf(f, "t%d", tempList[i]);
+		fprintf(f, "t%d", tempList[i].temp);
 		if(tempIndex1-1 != i){
 			fprintf(f, ", ");
 		}
 	}
 	fprintf(f, ")");
 	free(tempList);
+}
+
+void outputPrintf(){
+	outputString("printf(");
+	int i;
+	outputString("\"");
+	for(i = 0; i<tempIndex1; i++){
+		switch(tempList[i].type){
+		case 265:
+			fprintf(f, "%%d ");	
+			break;
+		case 266:
+			fprintf(f, "%%f ");
+			break;	
+		}	
+	}
+	outputString("\\n\"");
+	outputString(",");
+	for(i = 0; i<tempIndex1; i++){
+		if(tempIndex1-1 == i){
+			fprintf(f, "t%d", tempList[i].temp);
+		}else{
+			fprintf(f, "t%d, ", tempList[i].temp);
+		}
+	}	
+	outputString(")");
+	outputEnd();
+}
+
+char** variables;
+int varIndex, varSize;
+
+void initVarList(){
+	varSize=10;
+	varIndex=0;
+	variables = malloc(varSize*sizeof(char*)); 
+}
+
+void copyVarList(char** new, char** old) {
+    int i;
+    for (i = 0; i < varIndex; i++) {
+        new[i] = old[i];
+    }
+}
+
+void addVar(char* variable){
+	if((varSize-1) == varIndex){
+		char** temp = malloc(varSize*2*sizeof(char*));    
+		copyVarList(temp, variables);
+		varSize *= 2;
+		free(variables);
+		tempList = temp;    
+	}
+	variables[varIndex] = variable;
+	varIndex++;
+}
+
+void outputScanf(){
+	outputString("scanf(");
+	int i;
+	outputString("\"");
+	for(i = 0; i<tempIndex1; i++){
+		switch(tempList[i].type){
+		case 265:
+			fprintf(f, "%%d ");	
+			break;
+		case 266:
+			fprintf(f, "%%f ");
+			break;	
+		}	
+	}
+	outputString("\\n\"");
+	outputString(",");
+	for(i = 0; i<varIndex; i++){
+		if(tempIndex1-1 == i){
+			fprintf(f, "%s", variables[i]);
+		}else{
+			fprintf(f, "%s, ",  variables[i]);
+		}
+	}	
+	outputString(")");
+	outputEnd();
 }
 
 void outputMulop(char* operator){
@@ -178,7 +262,7 @@ void outputEndMain(){
 }
 
 int getLastTemp(){
-	return lastTemp;
+	return lastTemp.temp;
 }
 
 void outputOldTemp(int temp) {
