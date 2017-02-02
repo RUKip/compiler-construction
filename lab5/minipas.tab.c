@@ -579,10 +579,10 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint16 yyrline[] =
 {
        0,   147,   147,   149,   147,   154,   159,   165,   169,   172,
-     173,   176,   177,   180,   181,   184,   191,   191,   202,   202,
-     214,   215,   218,   220,   224,   227,   228,   231,   232,   235,
-     240,   241,   243,   247,   242,   256,   255,   267,   270,   273,
-     276,   279,   280,   283,   284,   285,   291,   298,   299,   302,
+     173,   176,   177,   180,   181,   184,   190,   190,   201,   201,
+     213,   214,   217,   219,   223,   226,   227,   230,   231,   234,
+     239,   240,   242,   246,   241,   255,   254,   266,   269,   272,
+     275,   278,   279,   282,   283,   284,   290,   297,   298,   301,
      310,   313,   314,   317,   318,   319,   325,   333,   334,   337,
      338,   346,   349,   350,   358,   359
 };
@@ -1494,20 +1494,19 @@ yyreduce:
   case 15:
 #line 185 "minipas.y" /* yacc.c:1646  */
     {
-				outputString("return "); outputString((yyvsp[-2].strtabptr)); outputEnd(); 
-				outputString("}\n");
+				outputString("return "); outputString((yyvsp[-2].strtabptr)); endFunction(); 
 			}
-#line 1501 "minipas.tab.c" /* yacc.c:1646  */
+#line 1500 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 191 "minipas.y" /* yacc.c:1646  */
+#line 190 "minipas.y" /* yacc.c:1646  */
     {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/}
-#line 1507 "minipas.tab.c" /* yacc.c:1646  */
+#line 1506 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 192 "minipas.y" /* yacc.c:1646  */
+#line 191 "minipas.y" /* yacc.c:1646  */
     {
 							outputFunctionName((yyvsp[-1].tempType), (yyvsp[-4].strtabptr)); //cOuput
 							checkDoubleDeclaration((yyvsp[-4].strtabptr), localTable); 
@@ -1518,17 +1517,17 @@ yyreduce:
 							free(arguments);
 							(yyval.strtabptr) = (yyvsp[-4].strtabptr);
 						}
-#line 1522 "minipas.tab.c" /* yacc.c:1646  */
+#line 1521 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 202 "minipas.y" /* yacc.c:1646  */
+#line 201 "minipas.y" /* yacc.c:1646  */
     {isGlobal = 0; free(localTable); localTable = initSymbolTable(); initArguments(); initStoredArguments();/*cOutput*/}
-#line 1528 "minipas.tab.c" /* yacc.c:1646  */
+#line 1527 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 203 "minipas.y" /* yacc.c:1646  */
+#line 202 "minipas.y" /* yacc.c:1646  */
     {
 							struct tempType t; t.type = -1; //cOuput
 							outputFunctionName(t, (yyvsp[-2].strtabptr)); //cOuput
@@ -1538,141 +1537,142 @@ yyreduce:
 							free(arguments);
 							(yyval.strtabptr) = "";
 						}
-#line 1542 "minipas.tab.c" /* yacc.c:1646  */
+#line 1541 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 219 "minipas.y" /* yacc.c:1646  */
+#line 218 "minipas.y" /* yacc.c:1646  */
     {insertSymbolsAndArguments((yyvsp[0].tempType));}
-#line 1548 "minipas.tab.c" /* yacc.c:1646  */
+#line 1547 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 221 "minipas.y" /* yacc.c:1646  */
+#line 220 "minipas.y" /* yacc.c:1646  */
     {insertSymbolsAndArguments((yyvsp[0].tempType));}
-#line 1554 "minipas.tab.c" /* yacc.c:1646  */
+#line 1553 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 236 "minipas.y" /* yacc.c:1646  */
+#line 235 "minipas.y" /* yacc.c:1646  */
     {
 				checkEqual(getType((yyvsp[-2].strtabptr)),(yyvsp[0].tempType));
 				outputString((yyvsp[-2].strtabptr)); outputString(" = "); outputOldTemp((yyvsp[0].tempType).temp); outputEnd(); //cOuput
 			}
-#line 1563 "minipas.tab.c" /* yacc.c:1646  */
+#line 1562 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 243 "minipas.y" /* yacc.c:1646  */
+#line 242 "minipas.y" /* yacc.c:1646  */
     {
 				outputString("if(!"); outputOldTemp((yyvsp[-1].tempType).temp); outputString(")"); outputString("goto "); outputLabel((yyvsp[-2].label)); outputEnd(); //cOuput
 			}
-#line 1571 "minipas.tab.c" /* yacc.c:1646  */
+#line 1570 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 247 "minipas.y" /* yacc.c:1646  */
+#line 246 "minipas.y" /* yacc.c:1646  */
     {
 				outputString("goto "); outputLabel((yyvsp[-2].label)); outputEnd(); //cOuput
 				outputLabel((yyvsp[-4].label)); outputString(": "); outputEnd(); //cOuput
 			}
-#line 1580 "minipas.tab.c" /* yacc.c:1646  */
+#line 1579 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 252 "minipas.y" /* yacc.c:1646  */
+#line 251 "minipas.y" /* yacc.c:1646  */
     {
 				outputLabel((yyvsp[-5].label)); outputString(": "); outputEnd(); //cOuput
 			}
-#line 1588 "minipas.tab.c" /* yacc.c:1646  */
+#line 1587 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 256 "minipas.y" /* yacc.c:1646  */
+#line 255 "minipas.y" /* yacc.c:1646  */
     {
 				outputLabel((yyvsp[-2].label)); outputString(": "); outputEnd(); //cOutput
 				outputString("if(!"); outputOldTemp((yyvsp[-1].tempType).temp); outputString(")"); outputString("goto "); outputLabel((yyvsp[0].label)); outputEnd(); //cOutput
 			}
-#line 1597 "minipas.tab.c" /* yacc.c:1646  */
+#line 1596 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 261 "minipas.y" /* yacc.c:1646  */
+#line 260 "minipas.y" /* yacc.c:1646  */
     {
 				outputString("goto "); outputLabel((yyvsp[-4].label)); outputEnd(); //cOutput
 				outputLabel((yyvsp[-2].label)); outputString(": "); outputEnd(); //cOutput
 			}
-#line 1606 "minipas.tab.c" /* yacc.c:1646  */
+#line 1605 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 267 "minipas.y" /* yacc.c:1646  */
+#line 266 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1612 "minipas.tab.c" /* yacc.c:1646  */
+#line 1611 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 270 "minipas.y" /* yacc.c:1646  */
+#line 269 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1618 "minipas.tab.c" /* yacc.c:1646  */
+#line 1617 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 273 "minipas.y" /* yacc.c:1646  */
+#line 272 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1624 "minipas.tab.c" /* yacc.c:1646  */
+#line 1623 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 276 "minipas.y" /* yacc.c:1646  */
+#line 275 "minipas.y" /* yacc.c:1646  */
     {(yyval.label) = getLabel();}
-#line 1630 "minipas.tab.c" /* yacc.c:1646  */
+#line 1629 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 284 "minipas.y" /* yacc.c:1646  */
+#line 283 "minipas.y" /* yacc.c:1646  */
     {getType((yyvsp[-3].strtabptr)); if(!isFunction(globalTable, (yyvsp[-3].strtabptr))) {printf("%s is not a function\n", (yyvsp[-3].strtabptr)); exit(-1);} checkArguments(globalTable, (yyvsp[-3].strtabptr), arguments, argIndex); free(arguments);}
-#line 1636 "minipas.tab.c" /* yacc.c:1646  */
+#line 1635 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 286 "minipas.y" /* yacc.c:1646  */
+#line 285 "minipas.y" /* yacc.c:1646  */
     {	
 								outputPrintf();
 								free(arguments);
-								//todo free varlist here
+								freeVariables();
 							}
-#line 1646 "minipas.tab.c" /* yacc.c:1646  */
+#line 1645 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 291 "minipas.y" /* yacc.c:1646  */
+#line 290 "minipas.y" /* yacc.c:1646  */
     {
 								outputScanf();
 								free(arguments);
-								//todo free varlist here
+								freeVariables();
 							}
-#line 1656 "minipas.tab.c" /* yacc.c:1646  */
+#line 1655 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 298 "minipas.y" /* yacc.c:1646  */
+#line 297 "minipas.y" /* yacc.c:1646  */
     {initArguments(); initVarList(); addArg((yyvsp[0].tempType)); addVar(lastVariable); initTempList(); storeToTempList((yyvsp[0].tempType).type);/*cOutput*/}
-#line 1662 "minipas.tab.c" /* yacc.c:1646  */
+#line 1661 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 299 "minipas.y" /* yacc.c:1646  */
+#line 298 "minipas.y" /* yacc.c:1646  */
     {addArg((yyvsp[0].tempType)); addVar(lastVariable); storeToTempList((yyvsp[0].tempType).type);/*cOutput*/}
-#line 1668 "minipas.tab.c" /* yacc.c:1646  */
+#line 1667 "minipas.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 303 "minipas.y" /* yacc.c:1646  */
+#line 302 "minipas.y" /* yacc.c:1646  */
     {
 							checkEqual((yyvsp[-2].tempType),(yyvsp[0].tempType)); 
 							outputTempValue((yyvsp[-2].tempType)); outputOldTemp((yyvsp[-2].tempType).temp); outputString((yyvsp[-1].strtabptr)); outputOldTemp((yyvsp[0].tempType).temp); outputEnd(); //cOuput 
 							struct tempType t = (yyvsp[-2].tempType); t.temp = getLastTemp(); (yyval.tempType) = t; //cOuput
+							free((yyvsp[-1].strtabptr));
 						}
 #line 1678 "minipas.tab.c" /* yacc.c:1646  */
     break;

@@ -7,6 +7,7 @@ char* currentFunction;
 int tempCount = 0;
 int labelCount = 0;
 struct tempType lastTemp;
+int inFunction = 0;
 
 typedef struct argument {
   char *name;  
@@ -15,6 +16,16 @@ typedef struct argument {
 
 argument* arguments1;
 int argSize1, argIndex1;
+
+void outputString(char* string){
+	fprintf(f, "%s ", string);	
+}
+
+void outputEnd(){
+	fprintf(f, ";\n");
+	lastTemp.temp = tempCount-1;
+	if(inFunction) fprintf(f, "\t");
+}
 
 void initStoredArguments(){
 	argSize1=10;
@@ -72,7 +83,8 @@ void initializeOutput(){
 
 void outputDeclaration(tempType t, char* name){
 	printType(t);
-	fprintf(f, "%s;\n", name);
+	fprintf(f, "%s", name);
+	outputEnd();
 }
 
 void outputArgument(int type, char* ident, int isLastElement){
@@ -96,6 +108,15 @@ void outputFunctionName(tempType t, char* name){
 	}
 	fprintf(f, "){\n");
 	free(arguments1);
+	inFunction = 1;
+	fprintf(f, "\t");
+}
+
+void endFunction() {
+	fprintf(f, ";\n");
+	lastTemp.temp = tempCount-1;
+	outputString("}\n");
+	inFunction = 0;
 }
 
 void outputTempValue(tempType type){
@@ -104,20 +125,10 @@ void outputTempValue(tempType type){
 	tempCount++;
 }
 
-void outputString(char* string){
-	fprintf(f, "%s ", string);	
-}
-
 void outputLastTemp(){
 	fprintf(f, "t%d ", lastTemp.temp);
 	lastTemp.temp = tempCount-1;
 }
-
-void outputEnd(){
-	fprintf(f, ";\n");
-	lastTemp.temp = tempCount-1;
-}
-
 
 int tempSize1, tempIndex1;
 tempType* tempList;
@@ -214,6 +225,10 @@ void addVar(char* variable){
 	}
 	variables[varIndex] = variable;
 	varIndex++;
+}	
+
+void freeVariables(){
+	free(variables);
 }
 
 void outputScanf(){
@@ -254,10 +269,12 @@ void outputMulop(char* operator){
 }
 
 void outputMain(){
-	fprintf(f, "\nint main(void){\n");
+	fprintf(f, "\nint main(void){\n\t");
+	inFunction = 1;
 }
 
 void outputEndMain(){
+	inFunction = 0;
 	fprintf(f, "return 0; \n }");
 }
 

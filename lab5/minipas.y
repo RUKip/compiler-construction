@@ -183,8 +183,7 @@ subprogdecls       : subprogdecls subprogdecl ';'
 
 subprogdecl        : subprogheading declarations compoundstatement 
 			{
-				outputString("return "); outputString($1); outputEnd(); 
-				outputString("}\n");
+				outputString("return "); outputString($1); endFunction(); 
 			}//cOutput
                    ;
 
@@ -286,12 +285,12 @@ procstatement      : IDENTIFIER
 							{	
 								outputPrintf();
 								free(arguments);
-								//todo free varlist here
+								freeVariables();
 							}
                    | READLN '(' exprlist ')'		{
 								outputScanf();
 								free(arguments);
-								//todo free varlist here
+								freeVariables();
 							}
                    ;
 
@@ -304,6 +303,7 @@ boolexpression	   : simpleexpr relationop simpleexpr
 							checkEqual($1,$3); 
 							outputTempValue($1); outputOldTemp($1.temp); outputString($2); outputOldTemp($3.temp); outputEnd(); //cOuput 
 							struct tempType t = $1; t.temp = getLastTemp(); $$ = t; //cOuput
+							free($2);
 						}
 				   ;
 				   
